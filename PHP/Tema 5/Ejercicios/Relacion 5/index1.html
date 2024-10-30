@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+<body>
+    <h1>Alta alumno:</h1>
+    <form action="ej1.php" method="POST">
+        Nombre: <input type="text" name="nombre">
+        <br><br>
+        Apellidos: <input type="text" name="apellidos">
+        <br><br>
+        Fecha de nacimiento: <input type="date" name="fecha">
+        <br><br>
+        Correo Electronico: <input type="text" name="correo">
+        <br><br>
+        ¿Que lenguajes de programacion conoces?
+        <input TYPE="checkbox" name="lenguajes[]" value="C++">C++
+        <input TYPE="checkbox" name="lenguajes[]" value="JavaScript">JavaScript
+        <input TYPE="checkbox" name="lenguajes[]" value="PHP">PHP
+        <input TYPE="checkbox" name="lenguajes[]" value="Python">Python
+        <br><br>
+        ¿Sabes crear paginas web estaticas?
+        <input TYPE="radio" name="pagWeb" value="si">Si
+        <input TYPE="radio" name="pagWeb" value="no">No
+        <br><br>
+        Comentarios: <br> <textarea name="dudas"></textarea>
+        <br><br>
+        Contraseña: <input type="password" name="contraseña">
+        <br><br>
+        Repita la contraseña: <input type="password" name="contraseña">
+        <br><br>
+        <input type="submit" value="Enviar">
+
+    </form>
+</body>
+</html>

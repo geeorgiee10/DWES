@@ -1,0 +1,23 @@
+#container{
+    border: solid 1px lightblue;
+}
+
+h1{
+    color: #2A64C5;
+}
+
+form{
+    margin: 0.5em;
+}
+
+.apartado {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+label{
+    font-weight: bold;
+    width: 250px;
+    margin-right: 50px; 
+}

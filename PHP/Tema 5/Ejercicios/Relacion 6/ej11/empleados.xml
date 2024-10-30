@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<departamento nombre="Marketing" jefeDep="e101">
+<empleado codEmple="e101">
+<nombre>Ana</nombre>
+<apellidos>Frutos Jarama</apellidos>
+<edad>28</edad>
+<carnetConducir/>
+<telefono>654321987</telefono><codigo_postal>2976</codigo_postal></empleado>
+<empleado codEmple="e102">
+<nombre>Antonio</nombre>
+<apellidos>Miguel Bustos</apellidos>
+<edad>23</edad>
+</empleado>
+</departamento>

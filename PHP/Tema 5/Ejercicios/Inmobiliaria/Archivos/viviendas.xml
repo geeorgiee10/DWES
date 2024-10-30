@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<viviendas>
+  <vivienda>
+    <tipo>piso</tipo>
+    <zona>centro</zona>
+    <direccion>Calle hola</direccion>
+    <dormitorios>2</dormitorios>
+    <precio>12.4</precio>
+    <tamano>24000</tamano>
+    <foto>385202695af24272cfae90d563e2be32.jpg</foto>
+    <observaciones>dsa</observaciones>
+    <extras>
+      <extra>piscina</extra>
+      <extra>jardin</extra>
+    </extras>
+  </vivienda>
+</viviendas>

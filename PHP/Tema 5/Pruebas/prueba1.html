@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <form action="formulario.php" method="POST">
+        Edad: <br><input type="text" name="edad">
+        <br><br>
+        Informacion<br> <textarea name="dudas"></textarea>
+        <br><br>
+        Estudios Realizados<br>
+        <input TYPE="checkbox" name="extras[]" value="ESO">ESO
+        <input TYPE="checkbox" name="extras[]" value="Bachiller">Bachiller
+        <input TYPE="checkbox" name="extras[]" value="Grado Medio">Grado Medio
+        <input TYPE="checkbox" name="extras[]" value="Grado Superior">Grado Superior
+        <input TYPE="checkbox" name="extras[]" value="Grado Medio">Universidad
+        <br><br>
+        Colores <br>
+        <select name="color">
+            <option value="rojo">rojo</option>
+            <option value="verde" selected>verde</option>
+            <option value="azul">azul</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Aceptar">
+
+    </form>
+</body>
+</html>
