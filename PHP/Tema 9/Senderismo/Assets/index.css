@@ -1,0 +1,255 @@
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header y navegación */
+header {
+    background-color: #1e88e5;
+    color: white;
+    padding: 15px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+}
+
+nav a:hover {
+    background-color: #2196f3;
+    border-radius: 4px;
+}
+
+/* Formularios */
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #1e88e5;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 100px;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #2196f3;
+}
+
+/* Tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    margin: 20px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+th {
+    background-color: #1e88e5;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 1rem;
+    padding-left: 1.2rem;
+
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+td:nth-child(2) {
+    width: 18rem;
+}
+
+td:nth-child(7) {
+    padding-left: 2rem;
+    width: 20rem;
+}   
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Rutas */
+.ruta {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.ruta img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.ruta h2 {
+    color: #1e88e5;
+    margin-bottom: 10px;
+}
+
+/* Comentarios */
+.comentarios {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.comentario {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.pagination a {
+    color: #1e88e5;
+    padding: 8px 15px;
+    text-decoration: none;
+    border: 1px solid #1e88e5;
+    border-radius: 4px;
+}
+
+.pagination a:hover {
+    background-color: #1e88e5;
+    color: white;
+}
+
+/* Mensajes de error y éxito */
+.error {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+ul li {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+ul li:hover {
+    transform: translateX(5px);
+    background-color: #f8f9fa;
+}
+
+ul li a {
+    color: #1e88e5;
+    text-decoration: none;
+    display: block;
+}
+
+ul li a:hover {
+    color: #2196f3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    .ruta img {
+        height: 200px;
+    }
+
+    button {
+        width: auto;
+        min-width: 80px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}

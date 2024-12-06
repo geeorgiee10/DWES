@@ -1,0 +1,17 @@
+{
+    "name": "georgie/agenda",
+    "autoload": {
+        "psr-4": {
+            "Controllers\\": "./Controllers/",
+            "config\\": "./config/",
+            "Lib\\": "./Lib/",
+            "Models\\": "./Models/",
+            "Views\\": "./Views/",
+            "Repositories\\": "./Repositories/",
+            "Services\\":  "./Services/"
+        }
+    },
+    "require": {
+        "stefangabos/zebra_pagination": "^2.4"
+    }
+}
