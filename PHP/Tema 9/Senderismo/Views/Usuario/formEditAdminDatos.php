@@ -7,7 +7,7 @@
         <p style="color:red;"><?php echo $errores['id']; ?></p>
     <?php endif; ?>
 
-    <input type="hidden" name="origen" value="formEditAdminDatos">
+    <input type="hidden" name="origen" value="<?php echo $origen; ?>">
     <?php if (isset($errores['origen'])): ?>
         <p style="color:red;"><?php echo $errores['origen']; ?></p>
     <?php endif; ?>
@@ -56,6 +56,12 @@
     <button type="submit">Guardar cambios</button>
 </form>
 
+<?php if($origen == "verUsuarios"): ?>
 <form action="<?php echo BASE_URL; ?>Usuario/verUsuarios">
     <button>Cancelar</button>
 </form>
+<?php else:?>
+<form action="<?php echo BASE_URL; ?>Usuario/verTusDatos">
+    <button>Cancelar</button>
+</form>
+<?php endif;?>

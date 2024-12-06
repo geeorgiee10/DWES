@@ -1,3 +1,9 @@
+<?php 
+    if(session_status() === PHP_SESSION_NONE){
+        session_start();
+    }
+?>
+
 <!-- Formulario para registrarse -->
 <h2>Formulario de Registro</h2>
 <form action="<?php echo BASE_URL; ?>Usuario/registrar" method="POST">
@@ -54,6 +60,14 @@
     <input type="password" name="confirmar_contrasena" id="confirmar_contrasena"><br><br>
     <?php if (isset($errores['confirmar_contrasena'])): ?>
         <p style="color:red;"><?php echo $errores['confirmar_contrasena']; ?></p>
+    <?php endif; ?>
+
+    <?php if(isset($_SESSION['usuario'])): ?>
+    <label for="rol">Rol:</label>
+    <input type="text" name="rol" id="rol" value="<?php echo $_POST['rol'] ?? ''; ?>"><br><br>
+    <?php if (isset($errores['rol'])): ?>
+        <p style="color:red;"><?php echo $errores['rol']; ?></p>
+    <?php endif; ?>
     <?php endif; ?>
 
     <input type="submit" value="Registrar">

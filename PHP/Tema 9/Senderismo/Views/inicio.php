@@ -35,7 +35,7 @@
         <button id="verUsuarios" name="verUsuarios">Ver los Usuarios</button>
     </form>
 
-    <form action="<?php echo BASE_URL; ?>Usuario/formularioRegistroAdmin">
+    <form action="<?php echo BASE_URL; ?>Usuario/formularioRegistro">
         <button id="registrarUsuarios" name="registrarUsuarios">Registrar Usuarios</button>
     </form>
 

@@ -24,13 +24,12 @@ class UsuarioController {
         $this->pages->render('Usuario/registro');
     }
 
-    public function formularioRegistroAdmin() {
-        $this->pages->render('Usuario/registroAdmin');
-    }
-
     // Método para registrarse
     public function registrar() {
         //Obtener datos formularios, sanetizarlos y validarlos
+
+        $rol = empty($_POST['rol']) ? "usur" : $_POST['rol'];
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Crear instancia de Usuario con los datos del POST
             $usuario = new Usuario(
@@ -43,7 +42,7 @@ class UsuarioController {
                 $_POST['fecha_nacimiento'],
                 $_POST['nombre_usuario'],
                 $_POST['contrasena'],
-                "usur"
+                $rol
             );
 
             // Sanitizar datos
@@ -85,68 +84,6 @@ class UsuarioController {
                 }
             } else {
                 $this->pages->render('Usuario/registro', ["errores" => $errores]);
-            }
-        }
-    }
-
-    public function registrarAdmin() {
-        //Obtener datos formularios, sanetizarlos y validarlos
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Crear instancia de Usuario con los datos del POST
-            $usuario = new Usuario(
-                null,
-                $_POST['nombre'],
-                $_POST['apellidos'],
-                $_POST['email'],
-                $_POST['direccion'],
-                $_POST['telefono'],
-                $_POST['fecha_nacimiento'],
-                $_POST['nombre_usuario'],
-                $_POST['contrasena'],
-                $_POST['rol']
-            );
-
-            // Sanitizar datos
-            $usuario->sanitizarDatos();
-
-            // Validar datos
-            $errores = $usuario->validarDatosRegistro();
-
-            // Validar que las contraseñas coincidan
-            if($_POST['contrasena'] !== $_POST['confirmar_contrasena']){
-                $errores['confirmar_contrasena'] = "Las contraseñas no son iguales";
-            }
-
-            if (empty($errores)) {
-                // Cifrar la contraseña
-                $contrasena_segura = password_hash($usuario->getContrasena(), PASSWORD_BCRYPT, ['cost' => 10]);
-                $usuario->setContrasena($contrasena_segura);
-
-                $userData = [
-                    'nombre' => $usuario->getNombre(),
-                    'apellidos' => $usuario->getApellidos(),
-                    'correo' => $usuario->getCorreo(),
-                    'direccion' => $usuario->getDireccion(),
-                    'telefono' => $usuario->getTelefono(),
-                    'fecha_nacimiento' => $usuario->getFechaNacimiento(),
-                    'nombre_usuario' => $usuario->getNombreUsuario(),
-                    'contrasena' => $contrasena_segura,
-                    'rol' => $usuario->getRol()
-                ];
-
-                $resultado = $this->usuarioService->guardarUsuarios($userData);
-
-                if ($resultado === true) {
-                    header("Location: " . BASE_URL);
-                    exit;
-                } 
-                else {
-                    $errores['db'] = "Error al registrar al usuario: " . $resultado;
-                    $this->pages->render('Usuario/registroAdmin', ["errores" => $errores]);
-                }
-            } 
-            else {
-                $this->pages->render('Usuario/registroAdmin', ["errores" => $errores]);
             }
         }
     }
@@ -224,16 +161,6 @@ class UsuarioController {
         $this->pages->render("Usuario/datosUsuario", ["usuario" => $usuActual]);
     }
 
-    // Método que llama al formulario para editar datos propios
-    public function formularioMisDatos(){
-        if(session_status() === PHP_SESSION_NONE){
-            session_start();
-        }
-        $usuActual = $_SESSION['usuario'];
-
-        $this->pages->render("Usuario/formEditDatos", ["usuario" => $usuActual]);
-    }
-
     // Método para actualizar datos
     public function actualizarDatos() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -259,20 +186,15 @@ class UsuarioController {
             // Validar datos
             $errores = $usuario->validarDatosEdicion();
 
-            if($origen != "formEditAdminDatos" && $origen != "formEditDatos"){
-                $errores["origen"] = "El origen no es valido";
-            }
-    
             if (count($errores) > 0) {
-                if($origen === "formEditAdminDatos") {
-                    $this->pages->render('Usuario/formEditAdminDatos', ['usuario' => $_POST, 'errores' => $errores]);
-                } 
-                else {
-                    $this->pages->render('Usuario/formEditDatos', ['usuario' => $_POST, 'errores' => $errores]);
-                }
+                $this->pages->render('Usuario/formEditAdminDatos', [
+                    'usuario' => $_POST,
+                    'errores' => $errores,
+                    'origen' => $origen 
+                    ]);
                 return;
             }
-    
+
             $userData = [
                 'id' => $usuario->getId(),
                 'nombre' => $usuario->getNombre(),
@@ -285,13 +207,13 @@ class UsuarioController {
             ];
 
             $resultado = $this->usuarioService->actualizar($userData);
-    
+
             if ($resultado > 0) {
                 $usu = $this->usuarioService->obtenerUsuarioPorId($usuario->getId());
                 $_SESSION['usuario'] = $usu;
                 $usuModificado = $_SESSION["usuario"];
 
-                if($origen === "formEditAdminDatos"){
+                if($origen === "verUsuarios"){
                     $usuarios = $this->usuarioService->obtenerTodosUsuarios();
                     $this->pages->render("Usuario/verUsuarios", ["usuarios" => $usuarios]);
                 }
@@ -303,12 +225,7 @@ class UsuarioController {
             else {
                 // Si no se pudo actualizar los datos te redirije a una pagina u otra dependiendo de donde vengas
                 $error = 'No se ha podido actualizar los datos del usuario';
-                if($origen === "formEditAdminDatos") {
-                    $this->pages->render('Usuario/formEditAdminDatos', ['usuario' => $userData, 'error' => $error]);
-                } 
-                else {
-                    $this->pages->render('Usuario/formEditDatos', ['usuario' => $userData, 'error' => $error]);
-                }
+                $this->pages->render('Usuario/formEditAdminDatos', ['usuario' => $userData, 'error' => $error]);
             }
         }
     }
@@ -323,25 +240,43 @@ class UsuarioController {
         $this->pages->render('Usuario/verUsuarios', ["usuarios" => $usuarios]);
     }
 
-    // Método que llama al formulario para editar datos desde el panel de administrador
-    public function formDatosAdmin() {
+    // Método que llama al formulario para editar datos
+    public function formularioDatos() {
         if(session_status() === PHP_SESSION_NONE){
             session_start();
         }
         
-        if (isset($_POST['id'])) {
+        if (isset($_POST['id']) && isset($_POST['origen'])) {
+            $origen = $_POST['origen'];
             $id = $_POST['id'];
             $usuario = $this->usuarioService->obtenerUsuarioPorId($id);
+
+            $errores = [];
             
+            if($origen != "verUsuarios" && $origen != "datosUsuario"){
+                $errores["origen"] = "El origen no es valido";
+            }
+            if($id < 0 && $id == " "){
+                $errores["id"] = "El id no es valido";
+            }
+    
+            if (count($errores) > 0) {
+                $this->pages->render('Usuario/' . $origen, ['usuario' => $_POST, 'errores' => $errores]);
+                return;
+            }
+
             if ($usuario) {
-                $this->pages->render('Usuario/formEditAdminDatos', ['usuario' => $usuario]);
+                $this->pages->render('Usuario/formEditAdminDatos', [
+                    'usuario' => $usuario,
+                    'origen' => $origen
+                ]);
             } 
             else {
-                header('Location: /Senderismo/Usuario/verUsuarios');
+                header('Location: /Senderismo/Usuario/' . $origen);
             }
         } 
         else {
-            header('Location: /Senderismo/Usuario/verUsuarios');
+            header("Location: " . BASE_URL);
         }
     }
 }
