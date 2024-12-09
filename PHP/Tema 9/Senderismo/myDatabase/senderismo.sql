@@ -50,5 +50,5 @@ ADD FOREIGN KEY (usuarioID) REFERENCES usuarios(id) ON DELETE CASCADE;
 
 -- Insert a la tabla usuarios para hacer pruebas
 INSERT INTO usuarios (nombre, apellidos, correo, direccion, telefono, fecha_nacimiento, usuario, contraseña, rol)
-VALUES ('Usuario', 'De Prueba', 'usurario@prueba.com', 'Calle Prueba', '666777888', '2024-01-01', 'usur', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'usur');
+VALUES ('Usuario', 'De Prueba', 'usurario@prueba.com', 'Calle Prueba', '666777888', '2024-01-01', 'usur', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 -- La contraseña sin encriptar es password
