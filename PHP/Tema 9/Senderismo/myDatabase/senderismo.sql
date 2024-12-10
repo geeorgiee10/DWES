@@ -52,3 +52,11 @@ ADD FOREIGN KEY (usuarioID) REFERENCES usuarios(id) ON DELETE CASCADE;
 INSERT INTO usuarios (nombre, apellidos, correo, direccion, telefono, fecha_nacimiento, usuario, contraseña, rol)
 VALUES ('Usuario', 'De Prueba', 'usurario@prueba.com', 'Calle Prueba', '666777888', '2024-01-01', 'usur', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 -- La contraseña sin encriptar es password
+
+-- Insert de prueba en la tabla rutas
+INSERT INTO rutas (titulo, descripcion, desnivel, distancia, notas, dificultad) 
+VALUES ('Ruta del Ebro', 'Una espectacular ruta que recorre la caminos muy bonitos', 600, 50, 'Llevar agua y calzado adecuado', 'media');
+
+-- Insert de prueba en la tabla rutas_comentarios
+INSERT INTO rutas_comentarios (id_ruta, nombre, texto, fecha, usuarioID) 
+VALUES (1, 'Marcos', 'Una ruta muy chula y gratificante', '2024-12-08', 1);
