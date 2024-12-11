@@ -41,6 +41,11 @@ class UsuarioService {
         return $this->repository->obtenerCorreo($correo);
     }
 
+    // Método que llama al repository y comprueba el correo
+    public function comprobarCorreo(string $correoUsu): ?bool {
+        return $this->repository->comprobarCorreo($correoUsu);
+    }
+
     // Método que llama al repository para obtener el id del usuario
     public function obtenerUsuarioPorId(int $id): ?array {
         return $this->repository->obtenerUsuarioPorId($id);

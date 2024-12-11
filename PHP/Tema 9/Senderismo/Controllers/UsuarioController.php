@@ -184,7 +184,12 @@ class UsuarioController {
             $usuario->sanitizarDatos();
 
             // Validar datos
+
             $errores = $usuario->validarDatosEdicion();
+
+            if($this->usuarioService->comprobarCorreo($_POST['email'])){
+                $errores['email'] = "El correo ya existe";
+            }
 
             if (count($errores) > 0) {
                 $this->pages->render('Usuario/formEditAdminDatos', [

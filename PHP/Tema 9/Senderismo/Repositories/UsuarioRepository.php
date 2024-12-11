@@ -57,6 +57,22 @@ class UsuarioRepository {
         }
     }
 
+    // Método para obtener el correo
+    public function comprobarCorreo(string $correoUsu): bool {
+        try {
+            $stmt = $this->conexion->prepare("SELECT COUNT(*) FROM usuarios WHERE correo = :email");
+            $stmt->bindValue(':email', $correoUsu, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $result = $stmt->fetchColumn();
+            return $result > 0;
+        } 
+        catch (PDOException $e) {
+            error_log("Error al comprobar el correo: " . $e->getMessage());
+            return null;
+        }
+    }
+
     // Método para obtener el usuario por su id
     public function obtenerUsuarioPorId(int $id): ?array {
         try {
