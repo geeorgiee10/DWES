@@ -1,0 +1,88 @@
+/* Importar de fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+/* Importar otros archivos css */
+@import url(./header.css);
+@import url(./usuario.css);
+@import url(./producto.css);
+@import url(./categorias.css);
+@import url(./cart.css);
+@import url(./order.css);
+@import url(./error.css);
+@import url(./footer.css);
+
+
+/* Variables globales */
+:root {
+    /* Colores */
+    --color-primario: #2a9d8f; 
+    --color-secundario: #264653; 
+    --color-resaltar: #e76f51; 
+    --color-fondo: #f4f1de; 
+    --color-texto: #3a3a3a; 
+    --color-fondo-principal: #ffffff;
+
+    /* Espaciado */
+    --espaciado: 2rem;
+    --espaciado-pequeno: 1rem;
+    --espaciado-grande: 3rem;
+    --borde-radio: 10px;
+
+    /* Sombras */
+    --sombra-pequena: 0 1px 3px rgba(0,0,0,0.12);
+    --sombra-mediana: 0 4px 6px rgba(0,0,0,0.1);
+    --sombra-grande: 0.5rem 0.5rem 0.5rem rgba(0,0,0,0.3);
+
+    /* Fuentes */
+    --fuente-navidad: 'Mountains of Christmas', cursive;
+    --fuente-titulos: 'Poppins', sans-serif;
+    --fuente-texto: 'Lato', sans-serif;
+    --texto-base: 16px;
+    --texto-pequeno: 0.875rem;
+    --texto-grande: 1.125rem;
+    --texto-muy-grande: 1.5rem;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fuente-texto);
+    width: 100%;
+    display: flex;
+    flex-direction: column; 
+    min-height: 100vh; 
+    height: 100%;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--fuente-titulos);
+}
+
+
+#tienda{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;    /* Centra verticalmente */
+    height: 100%;
+}
+
+
+
+
+
+@media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        height: 100%;
+    }
+}
