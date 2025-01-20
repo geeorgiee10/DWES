@@ -149,4 +149,22 @@ class ProductService {
         
     }
 
+
+    /**
+      * Método que llama a repository para actualizar la categoria de un producto que
+      * va a ser borrado pero esta en un pedido
+      * @var int con el id del producto de la que actualizar la categoria
+      * @return bool|string
+      */
+      public function updateCategoryProduct(int $id): bool|string {
+        try {
+
+            return $this->repository->updateCategoryProduct($id);
+        } 
+        catch (\Exception $e) {
+            error_log("Error al cambiar la categoria de los productos: " . $e->getMessage());
+            return false;
+        }
+    }
+
 }

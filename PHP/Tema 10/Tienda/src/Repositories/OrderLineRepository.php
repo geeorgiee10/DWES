@@ -76,5 +76,24 @@ class OrderLineRepository {
     }
 
 
+    /**
+     * Metodo que obtiene todas las lineas de pedido con un producto de la base de datos
+     * @var int entero con el producto a obtener sus lineas de pedido
+     * @return array
+     */
+    public function seeProductOrdersLine(int $id): array {
+        try {
+            $stmt = $this->conexion->prepare("SELECT * FROM lineas_pedidos WHERE producto_id = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            error_log("Error al obtener las lineas del pedido: " . $e->getMessage());
+            return [];
+        }
+    }
+
+
 
 }

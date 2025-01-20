@@ -221,4 +221,27 @@ class ProductRepository {
     }
 
 
+     /**
+     * Metodo que actualizar la categoria de los productos que van a ser borrados
+     * pero ya estan en un pedido
+     * @var int entero con el id del producto de la que actualizar la categoria
+     * @return bool|string
+     */
+    public function updateCategoryProduct(int $id): bool|string{
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE productos SET categoria_id = 14 WHERE id = :id");
+
+               
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            return true;
+        } 
+        catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+
+
 }

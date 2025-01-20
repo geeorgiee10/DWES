@@ -33,4 +33,15 @@ class OrderLineService {
     public function seeOrdersLine(int $id): array {
         return $this->repository->seeOrdersLine($id);
     }
+
+
+    /**
+     * Metodo que llama al repository para listar todas las lineas
+     * de pedido que contienen un producto
+     * @var int id del producto del que sacar las lineas de pedido
+     * @return array
+     */
+    public function seeProductOrdersLine(int $id): array {
+        return $this->repository->seeProductOrdersLine($id);
+    }
 }

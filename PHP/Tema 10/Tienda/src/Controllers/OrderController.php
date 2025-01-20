@@ -141,32 +141,39 @@ class OrderController {
     * @return void
     */
     public function seeOrders() {
-        $orders = $this->orderService->seeOrders();
-        $ordersLine = [];
-        $products = []; 
-        foreach ($orders as $order) {
-            $ordersLineIndividual = $this->orderLineService->seeOrdersLine($order['id']);
+
+        if(!$this->utils->isSession()){
+            header("Location: " . BASE_URL ."");
+        }
+        else{
+
+            $orders = $this->orderService->seeOrders();
+            $ordersLine = [];
+            $products = []; 
+            foreach ($orders as $order) {
+                $ordersLineIndividual = $this->orderLineService->seeOrdersLine($order['id']);
     
-            foreach ($ordersLineIndividual as $line) {
-                $product = $this->productService->detailProduct($line['producto_id']);
+                foreach ($ordersLineIndividual as $line) {
+                    $product = $this->productService->detailProduct($line['producto_id']);
     
-                if (!empty($product) && $product[0]['id'] == $line['producto_id']) {
-                    $products[$line['producto_id']] = $product[0]['nombre'];
+                    if (!empty($product) && $product[0]['id'] == $line['producto_id']) {
+                        $products[$line['producto_id']] = $product[0]['nombre'];
+                    }
                 }
+    
+                $ordersLine[] = $ordersLineIndividual;
             }
     
-            $ordersLine[] = $ordersLineIndividual;
+            $_SESSION['productsOrders'] = $products;
+    
+            //die(var_dump($_SESSION['productsOrders']));
+    
+            $this->pages->render('Order/orders', [
+                'orders' => $orders,
+                'ordersLine' => $ordersLine,
+                // 'products' => $products  
+            ]);
         }
-    
-        $_SESSION['productsOrders'] = $products;
-    
-        //die(var_dump($_SESSION['productsOrders']));
-    
-        $this->pages->render('Order/orders', [
-            'orders' => $orders,
-            'ordersLine' => $ordersLine,
-            // 'products' => $products  
-        ]);
     }
 
     

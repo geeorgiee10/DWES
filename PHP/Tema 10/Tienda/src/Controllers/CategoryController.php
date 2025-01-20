@@ -70,7 +70,14 @@ class CategoryController {
         
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            $this->pages->render('Category/formCategory');
+
+            if(!$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+                $this->pages->render('Category/formCategory');
+            }
+            
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -133,12 +140,20 @@ class CategoryController {
      */
     public function ActualizarCategoria(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            unset($_SESSION['falloDatos']);
-            unset($_SESSION['actualizado']);
 
-            $categorias = $this->categoryService->listarCategorias();
 
-            $this->pages->render('Category/updateCategory', ['categorias' => $categorias]);
+            if(!$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                unset($_SESSION['falloDatos']);
+                unset($_SESSION['actualizado']);
+
+                $categorias = $this->categoryService->listarCategorias();
+
+                $this->pages->render('Category/updateCategory', ['categorias' => $categorias]);
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -192,12 +207,20 @@ class CategoryController {
      */
     public function BorrarCategoria(){
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            unset($_SESSION['falloDatos']);
-            unset($_SESSION['borrado']);
 
-            $categorias = $this->categoryService->listarCategorias();
 
-            $this->pages->render('Category/deleteCategory', ['categorias' => $categorias]);
+            if(!$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+            
+                unset($_SESSION['falloDatos']);
+                unset($_SESSION['borrado']);
+
+                $categorias = $this->categoryService->listarCategorias();
+
+                $this->pages->render('Category/deleteCategory', ['categorias' => $categorias]);
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {

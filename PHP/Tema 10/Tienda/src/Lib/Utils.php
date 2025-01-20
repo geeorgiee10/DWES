@@ -23,6 +23,6 @@ class Utils {
      * @return void
      */
     public static function isSession() {
-        return isset($usuario) && !empty($usuario);
+        return isset($_SESSION['usuario']) && !empty($_SESSION['usuario']);
     }
 }

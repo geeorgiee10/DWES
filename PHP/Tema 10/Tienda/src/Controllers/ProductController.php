@@ -7,6 +7,7 @@ use Models\Product;
 use Lib\Utils;
 use Services\ProductService;
 use Services\CategoryService;
+use Services\OrderLineService;
 
 
 /**
@@ -20,6 +21,7 @@ class ProductController {
     private Pages $pages;
     private Utils $utils;
     private ProductService $productService;
+    private OrderLineService $orderLineService;
     private CategoryService $categoryService;
     
 
@@ -30,6 +32,7 @@ class ProductController {
         $this->pages = new Pages();
         $this->utils = new Utils();
         $this->productService = new ProductService();
+        $this->orderLineService = new OrderLineService();
         $this->categoryService = new CategoryService();
     }
 
@@ -65,15 +68,21 @@ class ProductController {
         
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            unset($_SESSION['guardado']);
 
-            $categorias = $this->categoryService->listarCategorias();
+            if(!$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+                unset($_SESSION['guardado']);
+
+                $categorias = $this->categoryService->listarCategorias();
 
 
-            $this->pages->render('Product/formProducto',
-            [
-                'categorias' => $categorias
-            ]);
+                $this->pages->render('Product/formProducto',
+                [
+                    'categorias' => $categorias
+                ]);
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -176,18 +185,36 @@ class ProductController {
      * @return void
      */
     public function deleteProduct (int $id){
-        
-
-            $resultado = $this->productService->deleteProduct($id);
-
-            if ($resultado === true) {
-                header("Location: " . BASE_URL ."");
-                exit;
-            } 
-            else {
-                $_SESSION['falloDatos'] = 'fallo';
-                $this->pages->render('Product/detail/$id');
+        if(!$this->utils->isAdmin()){
+            header("Location: " . BASE_URL ."");
+        }
+        else{
+            $lines = $this->orderLineService->seeProductOrdersLine($id);
+            if($lines > 0){
+                $update = $this->productService->updateCategoryProduct($id);
+                if ($update === true) {
+                    header("Location: " . BASE_URL ."");
+                } 
+                else {
+                    $_SESSION['falloDatos'] = 'fallo';
+                    $this->pages->render('Product/detail/$id');
+                }
             }
+            else{
+                $resultado = $this->productService->deleteProduct($id);
+
+                if ($resultado === true) {
+                    header("Location: " . BASE_URL ."");
+                    exit;
+                } 
+                else {
+                    $_SESSION['falloDatos'] = 'fallo';
+                    $this->pages->render('Product/detail/$id');
+                }
+            }
+
+            
+        }
                     
     }
 
@@ -198,17 +225,24 @@ class ProductController {
      */
     public function updateProduct(int $id){
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            unset($_SESSION['actualizado']);
 
-            $categorias = $this->categoryService->listarCategorias();
-            $product = $this->productService->detailProduct($id);
+            if(!$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                unset($_SESSION['actualizado']);
+
+                $categorias = $this->categoryService->listarCategorias();
+                $product = $this->productService->detailProduct($id);
 
 
-            $this->pages->render('Product/formUpdate',
-            [
-                'categorias' => $categorias,
-                'product' => $product
-            ]);
+                $this->pages->render('Product/formUpdate',
+                [
+                    'categorias' => $categorias,
+                    'product' => $product
+                ]);
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Lib\Pages;
+use Lib\Utils;
 use Models\User;
 use Services\UserService;
 
@@ -17,6 +18,7 @@ class UserController {
      * Variables usadas en la clase
      */
     private Pages $pages;
+    private Utils $utils;
     private User $user;
     private UserService $userService;
     
@@ -26,6 +28,7 @@ class UserController {
      */
     public function __construct() {
         $this->pages = new Pages();
+        $this->utils = new Utils();
         $this->user = new User();
         $this->userService = new UserService();
     }
@@ -39,8 +42,15 @@ class UserController {
         
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            unset($_SESSION['registrado']);
-            $this->pages->render('User/registrar');
+
+            if($this->utils->isSession() && !$this->utils->isAdmin()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                unset($_SESSION['registrado']);
+                $this->pages->render('User/registrar');
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -125,7 +135,14 @@ class UserController {
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-            $this->pages->render('User/iniciaSesion');
+
+            if($this->utils->isSession()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                $this->pages->render('User/iniciaSesion');
+            }
         }
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -178,12 +195,19 @@ class UserController {
      * @return void
      */
     public function logout() {
-        session_start();
-        session_unset();
-        unset($_SESSION['carrito']);
-        session_destroy();
-        header("Location: " . BASE_URL);
-        exit;
+
+        if(!$this->utils->isSession()){
+            header("Location: " . BASE_URL ."");
+        }
+        else{
+
+            session_start();
+            session_unset();
+            unset($_SESSION['carrito']);
+            session_destroy();
+            header("Location: " . BASE_URL);
+            exit;
+        }
     }
 
     /**
@@ -195,10 +219,16 @@ class UserController {
         if(session_status() === PHP_SESSION_NONE){
             session_start();
         }
-        // Pasar datos guardados en la sesión
-        $usuActual = $_SESSION['usuario'];
+        if(!$this->utils->isSession()){
+            header("Location: " . BASE_URL ."");
+        }
+        else{
 
-        $this->pages->render("User/datosUsuario", ["usuario" => $usuActual]);
+            // Pasar datos guardados en la sesión
+            $usuActual = $_SESSION['usuario'];
+
+            $this->pages->render("User/datosUsuario", ["usuario" => $usuActual]);
+        }
     }
 
     
