@@ -56,6 +56,10 @@ class Routes{
             (new UserController())->verTusDatos();
         });
 
+        Router::add('GET', 'User/token', function() {
+            (new UserController())->checkUser();
+        });
+
 
 
         Router::add('GET','/Category/categorias',function(){

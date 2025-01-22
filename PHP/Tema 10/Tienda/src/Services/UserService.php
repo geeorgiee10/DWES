@@ -3,6 +3,7 @@
 namespace Services;
 
 use Models\User;
+use Lib\Security;
 use Repositories\UserRepository;
 
 /**
@@ -14,12 +15,14 @@ class UserService {
      * Variable para establecer la conexion el repository
      */
     private UserRepository $repository;
+    private Security $security;
 
     /**
      * Constructor que inicializa las variables
      */
     public function __construct() {
         $this->repository = new UserRepository();
+        $this->security = new Security();
     }
 
     /**
@@ -35,7 +38,11 @@ class UserService {
                 $userData['apellidos'],
                 $userData['correo'],
                 $userData['contrasena'],
-                $userData['rol']
+                $userData['rol'],
+                $userData['confirmado'],
+                $userData['token'],
+                $userData['token_exp']
+
             );
 
             return $this->repository->guardarUsuarios($usuario);
@@ -75,11 +82,15 @@ class UserService {
     public function iniciarSesion(string $correo, string $contrasena): ?array {
         $usuario = $this->obtenerCorreo($correo);
         
-        if ($usuario && password_verify($contrasena, $usuario['password'])) {
+        if ($usuario && $this->security->validatePassw($contrasena, $usuario['password'])) {
             return $usuario;
         }
         
         return null;
+    }
+
+    public function confirm(string $token){
+        return $this->repository->confirm($token);
     }
 
 

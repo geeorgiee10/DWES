@@ -4,8 +4,11 @@ namespace Controllers;
 
 use Lib\Pages;
 use Lib\Utils;
+use Lib\Security;
+use Lib\Email;
 use Models\User;
 use Services\UserService;
+use Firebase\JWT\JWT;
 
 
 /**
@@ -19,6 +22,8 @@ class UserController {
      */
     private Pages $pages;
     private Utils $utils;
+    private Email $email;
+    private Security $security;
     private User $user;
     private UserService $userService;
     
@@ -29,6 +34,8 @@ class UserController {
     public function __construct() {
         $this->pages = new Pages();
         $this->utils = new Utils();
+        $this->email = new Email();
+        $this->security = new Security();
         $this->user = new User();
         $this->userService = new UserService();
     }
@@ -82,20 +89,34 @@ class UserController {
 
                 if (empty($errores)) {
                     // Cifrar la contraseña
-                    $contrasena_segura = password_hash($usuario->getContrasena(), PASSWORD_BCRYPT, ['cost' => 10]);
+                    $contrasena_segura = $this->security->encryptPassw($usuario->getContrasena());
                     $usuario->setContrasena($contrasena_segura);
+
+                    $data = [
+                        'id' => $usuario->getId(),
+                        'correo' => $usuario->getCorreo()
+                    ];
+
+                    $token = $this->security->createToken($this->security->secretKey(), $data);
+                    $key = $this->security->secretKey();
+                    $decodedToken = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
+                    $token_exp = $decodedToken->exp;
 
                     $userData = [
                         'nombre' => $usuario->getNombre(),
                         'apellidos' => $usuario->getApellidos(),
                         'correo' => $usuario->getCorreo(),
                         'contrasena' => $contrasena_segura,
-                        'rol' => $usuario->getRol()
+                        'rol' => $usuario->getRol(),
+                        'confirmado' => $usuario->getConfirmado(),
+                        'token' => $token,
+                        'token_exp' => $token_exp
                     ];
 
                     $resultado = $this->userService->guardarUsuarios($userData);
 
                     if ($resultado === true) {
+                        $this->email->confirmacionCuenta($userData['correo'], $userData['nombre'], $userData['token']);
                         $_SESSION['registrado'] = true;
                         $this->pages->render('User/registrar');
                         exit;
@@ -153,8 +174,10 @@ class UserController {
                 $correo = $_POST['correo'];
                 $contrasenaInicioSesion = $_POST['contrasena'];
 
+                $datosUsuario = $this->userService->obtenerCorreo($correo);
+
                 // Crear objeto Usuario con los datos para iniciar sesión
-                $usuario = new User( null, "", "", $correo, $contrasenaInicioSesion, "");
+                $usuario = new User( null, "", "", $correo, $contrasenaInicioSesion, "", $datosUsuario['confirmado'], "", "");
 
                 // Sanitizar datos
                 $usuario->sanitizarDatos();
@@ -232,7 +255,29 @@ class UserController {
     }
 
     
+    public function checkUser(){
+        $token = $_GET['token'] ?? null;
 
+        if (!$token) {
+            $_SESSION['error'] = "Token no proporcionado";
+            header("Location: " . BASE_URL);
+            exit;
+        }
+
+        try {
+            $resultado = $this->userService->confirm($token);
+            if ($resultado) {
+                $_SESSION['mensaje'] = "Cuenta confirmada exitosamente. Ya puedes iniciar sesión.";
+            } else {
+                $_SESSION['error'] = "No se pudo confirmar la cuenta. El token puede haber expirado o ser inválido.";
+            }
+        } catch (\Exception $e) {
+            $_SESSION['error'] = "Error al confirmar la cuenta: " . $e->getMessage();
+        }
+
+        header("Location: " . BASE_URL);
+        exit;
+    }
     
 
     

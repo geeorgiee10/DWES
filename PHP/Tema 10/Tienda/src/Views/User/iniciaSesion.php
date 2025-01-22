@@ -21,6 +21,10 @@
         <p style="color:red;"><?php echo $errores['login']; ?></p>
     <?php endif; ?>
 
+    <?php if (isset($errores['confirmado'])): ?>
+        <p style="color:red;"><?php echo $errores['confirmado']; ?></p>
+    <?php endif; ?>
+
     <input type="submit" value="Iniciar Sesión">
 
     <p>Si no tienes una cuenta creada <a href="<?= BASE_URL ?>User/registrar">Registrate</a></p>

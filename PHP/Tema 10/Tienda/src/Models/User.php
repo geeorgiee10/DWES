@@ -21,7 +21,10 @@ class User {
         private string $apellidos = "",
         private string $correo = "",
         private string $contrasena = "",
-        private string $rol = ""
+        private string $rol = "",
+        private bool $confirmado = FALSE,
+        private string $token = "",
+        private string $token_exp = ""
     ) {
         $this->conexion = new BaseDatos();
     }
@@ -51,6 +54,21 @@ class User {
         return $this->rol;
     }
 
+    public function getConfirmado(): bool {
+        return $this->confirmado;
+    }
+
+
+    public function getToken(): string {
+        return $this->token;
+    }
+
+
+    public function getToken_Exp(): string {
+        return $this->token_exp;
+    }
+
+
     // Metodos Setters
     public function setId(?int $id): void {
         $this->id = $id;
@@ -74,6 +92,18 @@ class User {
 
     public function setRol(string $rol): void {
         $this->rol = $rol;
+    }
+
+    public function setConfirmado(bool $confirmado): void {
+        $this->confirmado = $confirmado;
+    }
+
+    public function setToken(string $token): void {
+        $this->token = $token;
+    }
+
+    public function setTOken_Exp(string $token_exp): void {
+        $this->token_exp = $token_exp;
     }
 
     /**
@@ -144,6 +174,10 @@ class User {
             $errores['contrasena'] = "El campo contraseña es obligatorio.";
         }
 
+        if($this->confirmado == FALSE) {
+            $errores['confirmado'] = "Debe confirmar su cuenta accediendo al enlace mandado a su correo.";
+        }
+
         return $errores;
     }
 
@@ -159,7 +193,8 @@ class User {
             $data['apellidos'] ?? "",
             $data['email'] ?? "",
             $data['contrasena'] ?? "",
-            $data['rol'] ?? 'usur'
+            $data['rol'] ?? 'usur',
+            $data['confirmado'] ?? FALSE ?? TRUE
         );
     }
 
