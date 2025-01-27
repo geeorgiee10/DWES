@@ -3,7 +3,10 @@ namespace Lib;
 use Controllers\ErrorController;
 use Lib\Security;
 
-// para almacenar las rutas que configuremos desde el archivo index.php
+/**
+ * Clase que redirige a las diferente rutas del proyecto 
+ * correctamente pudiendole pasarle parametros por la url
+ */
 class Router {
 
     private static array $routes = [];
@@ -15,7 +18,9 @@ class Router {
         self::$security = new Security();
     }
 
-    //para ir añadiendo los métodos y las rutas en el tercer parámetro.
+    /**
+     * Metodo que comprueba que las rutas esten protegidas
+     */
     public static function add(string $method, string $action, callable $controller, bool $protected = false): void
     {
         $action = trim($action, '/');
@@ -26,6 +31,10 @@ class Router {
         }
     }
 
+    /**
+     * Metodo para validar el token que recibes por url 
+     * desde el enlace del correo
+     */
     private static function validateToken(): bool
     {
         $headers = getallheaders();
@@ -43,16 +52,15 @@ class Router {
         return $decoded !== null;
     }
    
-    // Este método se encarga de obtener el sufijo de la URL que permitirá seleccionar
-    // la ruta y mostrar el resultado de ejecutar la función pasada al metodo add para esa ruta
-    // usando call_user_func()
+    /**
+     * Metodo que redirige a las diferentes rutas del sitio web
+     */
     public static function dispatch(): void
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $action = preg_replace('/Tienda/', '', $_SERVER['REQUEST_URI']);
         $action = trim($action, '/');
 
-        // Extract query parameters
         $queryPosition = strpos($action, '?');
         if ($queryPosition !== false) {
             $action = substr($action, 0, $queryPosition);
@@ -66,11 +74,9 @@ class Router {
             $action = preg_replace('/' . $match[0] . '/', ':id', $action);
         }
 
-        // Check if route exists
         $fn = self::$routes[$method][$action] ?? null;
 
         if ($fn) {
-            // Check if route is protected
             if (isset(self::$protectedRoutes[$method][$action])) {
                 if (!self::validateToken()) {
                     header('HTTP/1.0 401 Unauthorized');

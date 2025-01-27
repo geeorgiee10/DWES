@@ -62,7 +62,7 @@ class UserController {
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-                // Crear instancia de Usuario con los datos del POST
+            // Crear instancia de Usuario con los datos del POST
 
             if($_POST['data']){
 
@@ -99,8 +99,7 @@ class UserController {
 
                     $token = $this->security->createToken($this->security->secretKey(), $data);
                     $key = $this->security->secretKey();
-                    $decodedToken = JWT::decode($token, new \Firebase\JWT\Key($key, 'HS256'));
-                    $token_exp = $decodedToken->exp;
+                    $token_exp = $this->security->generateEmailToken();
 
                     $userData = [
                         'nombre' => $usuario->getNombre(),
@@ -110,7 +109,7 @@ class UserController {
                         'rol' => $usuario->getRol(),
                         'confirmado' => $usuario->getConfirmado(),
                         'token' => $token,
-                        'token_exp' => $token_exp
+                        'token_exp' => $token_exp['expiration']
                     ];
 
                     $resultado = $this->userService->guardarUsuarios($userData);

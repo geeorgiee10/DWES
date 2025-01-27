@@ -8,6 +8,7 @@ use Exception;
 
 class Security{
 
+
     final public static function encryptPassw(string $passw){
         return password_hash($passw, PASSWORD_BCRYPT, ['cost' => 10]);
     }
@@ -31,25 +32,22 @@ class Security{
         return JWT::encode($token, $key, 'HS256');
     }
 
-    final public static function validaToken($token): bool {
+    public function validaToken(string $token): ?object {
         try {
-            // Decodificar el token con la clave secreta y el algoritmo HS256
-            $info = JWT::decode($token, new Key(Security::secretKey(), 'HS256'));
-    
-            $id = $info->data->id; 
-            $exp = $info->exp;     
-            $email = $info->data->mail; 
-    
-            
-            if ($exp < time()) {
-                return false; 
-            }
-    
-            return true;
-    
-        } catch (Exception $e) {
-            return false;
+            return JWT::decode($token, new Key(self::secretKey(), 'HS256'));
+        } catch (\Exception $e) {
+            return null;
         }
+    }
+
+    public function generateEmailToken(): array {
+        $token = bin2hex(random_bytes(32));
+        $expiration = date('Y-m-d H:i:s', strtotime('+1 hours'));
+
+        return [
+            'token' => $token,
+            'expiration' => $expiration
+        ];
     }
 
 }

@@ -6,7 +6,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 /**
- * Clase utilizada para mandar emails usando
+ * Clase que manda un correo usando
  * la libreria de PHPMailer
  */
 class Email {
@@ -17,7 +17,10 @@ class Email {
 
     
     /**
-     * Metodo que manda el email al correo para confirmar el registro
+     * Metodo que manda el email al correo para confirmar el registro del usuario
+     * @var string correo al que mandar el correo
+     * @var string con el nombre del usuario
+     * @var string con el token que confirmar
      * @return void
      */
     public function confirmacionCuenta(string $email, string $nombre, string $token)
@@ -35,15 +38,15 @@ class Email {
 
         $mail->setFrom($_ENV['SMTP_USERNAME'], "Fake Web Storage");
         $mail->addAddress($email);
-        $mail->Subject = 'Confirma tu Cuenta';
+        $mail->Subject = 'Confirmar tu Cuenta';
 
         $mail->isHTML(TRUE);
         $mail->CharSet = 'UTF-8';
 
         $contenido = "<html>";
-        $contenido .= "<p><strong>Hola ". $nombre . "</strong> Has Creado tu cuenta en Fake Web Storage, solo debes confirmarla presionando en el siguiente enlace</p>";
-        $contenido .= "<p>Presiona aquí: <a href='" . BASE_URL . "User/token?token=" . $token . "'>Confirmar cuenta</a>";
-        $contenido .= "<p>Si tu no solicitaste este cambio, puedes ignorar el mensaje</p>";
+        $contenido .= "<p><strong>Buenos días ". $nombre . "</strong> te has registrado en Fake Web Storage, lo unico que te queda es confirmarlo con el siguiente enlace</p>";
+        $contenido .= "<p>Haz click aquí: <a href='" . BASE_URL . "User/token?token=" . $token . "'>Confirmar cuenta</a>";
+        $contenido .= "<p>Si no te has registrado con nosotros, ignore este mensaje</p>";
         $contenido .= "</html>";
         $mail->Body = $contenido;
 

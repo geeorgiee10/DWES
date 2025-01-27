@@ -98,53 +98,51 @@ class UserRepository {
         }
     }
 
+    /**
+     * Metodo para actualizar la base de datos si el usuario
+     * se ha confirmado
+     * @var string con el token a modificar
+     * @return bool
+     */
     public function confirm(string $token):bool{
         try {
-            // Primero verificamos si el token existe y no ha expirado
             $stmt = $this->conexion->prepare(
-                "SELECT id, confirmado, token_exp 
-             FROM usuarios 
-             WHERE token = :token"
-            );
+                "SELECT id, confirmado, token_exp FROM usuarios WHERE token = :token");
             $stmt->bindValue(':token', $token, PDO::PARAM_STR);
             $stmt->execute();
 
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$usuario) {
-                return false; // Token no encontrado
+                return false; 
             }
 
             if ($usuario['confirmado']) {
-                return true; // La cuenta ya estaba confirmada
+                return true; 
             }
-
-            // Verificar si el token ha expirado
+            
             $tokenExp = new DateTime($usuario['token_exp']);
-            $ahora = new DateTime();
+            $fechaAhora = new DateTime();
 
-            if ($ahora > $tokenExp) {
-                return false; // Token expirado
+            if ($fechaAhora > $tokenExp) {
+                return false; 
             }
-
-            // Actualizar el usuario: confirmar cuenta y limpiar el token
-            $stmt = $this->conexion->prepare(
-                "UPDATE usuarios 
-             SET confirmado = 1, 
-                 token = NULL, 
-                 token_exp = NULL 
-             WHERE id = :id AND token = :token"
-            );
+            
+            
+            $stmt = $this->conexion->prepare( "UPDATE usuarios SET confirmado = 1, token = NULL, 
+                 token_exp = NULL WHERE id = :id AND token = :token");
 
             $stmt->bindValue(':id', $usuario['id'], PDO::PARAM_INT);
             $stmt->bindValue(':token', $token, PDO::PARAM_STR);
             $stmt->execute();
 
             return $stmt->rowCount() > 0;
-        } catch (PDOException $e) {
-            error_log("Error al confirmar la cuenta: " . $e->getMessage());
+        } 
+        catch (PDOException $e) {
+            error_log("Error a la hora de confirmar la cuenta: " . $e->getMessage());
             return false;
-        } finally {
+        } 
+        finally {
             if (isset($stmt)) {
                 $stmt->closeCursor();
             }

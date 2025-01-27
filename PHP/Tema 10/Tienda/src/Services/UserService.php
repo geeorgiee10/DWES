@@ -89,6 +89,10 @@ class UserService {
         return null;
     }
 
+    /**
+     * Metodo que llama al repository para confirmar la cuenta
+     * @var string token que confirmar
+     */
     public function confirm(string $token){
         return $this->repository->confirm($token);
     }
