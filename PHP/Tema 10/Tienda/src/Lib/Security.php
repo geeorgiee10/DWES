@@ -41,7 +41,7 @@ class Security{
     }
 
     public function generateEmailToken(): array {
-        $token = bin2hex(random_bytes(32));
+        $token = bin2hex(random_bytes(64));
         $expiration = date('Y-m-d H:i:s', strtotime('+1 hours'));
 
         return [

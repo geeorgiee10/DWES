@@ -99,55 +99,79 @@ class UserRepository {
     }
 
     /**
-     * Metodo para actualizar la base de datos si el usuario
-     * se ha confirmado
-     * @var string con el token a modificar
+     * Metodo para confirmar la cuenta en la base de datos
+     * @var string con el token
      * @return bool
      */
-    public function confirm(string $token):bool{
+    public function confirmarCuenta(string $token): bool {
         try {
-            $stmt = $this->conexion->prepare(
-                "SELECT id, confirmado, token_exp FROM usuarios WHERE token = :token");
-            $stmt->bindValue(':token', $token, PDO::PARAM_STR);
-            $stmt->execute();
-
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$usuario) {
-                return false; 
+            $usuario = $this->obtenerUsuarioPorToken($token);
+    
+            if (!$usuario || $this->esTokenExpirado($usuario['token_exp'])) {
+                return false;
             }
-
+    
             if ($usuario['confirmado']) {
-                return true; 
+                return true;
             }
-            
-            $tokenExp = new DateTime($usuario['token_exp']);
-            $fechaAhora = new DateTime();
-
-            if ($fechaAhora > $tokenExp) {
-                return false; 
-            }
-            
-            
-            $stmt = $this->conexion->prepare( "UPDATE usuarios SET confirmado = 1, token = NULL, 
-                 token_exp = NULL WHERE id = :id AND token = :token");
-
-            $stmt->bindValue(':id', $usuario['id'], PDO::PARAM_INT);
-            $stmt->bindValue(':token', $token, PDO::PARAM_STR);
-            $stmt->execute();
-
-            return $stmt->rowCount() > 0;
-        } 
-        catch (PDOException $e) {
-            error_log("Error a la hora de confirmar la cuenta: " . $e->getMessage());
+    
+            return $this->actualizarConfirmacionUsuario($usuario['id'], $token);
+        } catch (PDOException $e) {
+            error_log("Error al confirmar la cuenta: " . $e->getMessage());
             return false;
-        } 
-        finally {
-            if (isset($stmt)) {
-                $stmt->closeCursor();
-            }
         }
     }
+    
+    /**
+     * Metodo para obtener el usuario dependiendo del token que le pases
+     * @var string token del usuario a sacar
+     * @return array
+     */
+    private function obtenerUsuarioPorToken(string $token): ?array {
+        $stmt = $this->conexion->prepare(
+            "SELECT id, confirmado, token_exp FROM usuarios WHERE token = :token"
+        );
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        $stmt->closeCursor();
+    
+        return $usuario ?: null;
+    }
+    
+    /**
+     * Metodo para comprobar si el token que se le pasa a expirado
+     * @var string con la fecha de expiracion del token a comprobar
+     * @return bool
+     */
+    private function esTokenExpirado(string $tokenExp): bool {
+        $fechaExpiracion = new DateTime($tokenExp);
+        $fechaActual = new DateTime();
+    
+        return $fechaActual > $fechaExpiracion;
+    }
+    
+    /**
+     * Metodo que actualiza los campos de confirmado del usuario confirmado
+     */
+    private function actualizarConfirmacionUsuario(int $id, string $token): bool {
+        $stmt = $this->conexion->prepare(
+            "UPDATE usuarios SET confirmado = 1, token = NULL, token_exp = NULL 
+             WHERE id = :id AND token = :token"
+        );
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $actualizado = $stmt->rowCount() > 0;
+    
+        $stmt->closeCursor();
+    
+        return $actualizado;
+    }
+    
 
 
 }

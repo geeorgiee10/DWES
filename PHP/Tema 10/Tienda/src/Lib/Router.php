@@ -19,37 +19,62 @@ class Router {
     }
 
     /**
-     * Metodo que comprueba que las rutas esten protegidas
+     * Metodo que asigna las rutas estando ya protegidas
+     * @return void
      */
-    public static function add(string $method, string $action, callable $controller, bool $protected = false): void
-    {
-        $action = trim($action, '/');
+    public static function add(string $method, string $action, callable $controller, bool $protected = false): void{
+        self::assignRoute($method, trim($action, '/'), $controller, $protected);
+    }
+
+    /**
+     * Metodo para crear la rutas protegidas, pasandole el metodo
+     * la accion, el controlador y si esta protegido o no
+     * @return void
+     */
+    private static function assignRoute(string $method, string $action, callable $controller, bool $protected): void{
+        if (!isset(self::$routes[$method])) {
+            self::$routes[$method] = [];
+        }
+
         self::$routes[$method][$action] = $controller;
-        
+
         if ($protected) {
+            if (!isset(self::$protectedRoutes[$method])) {
+                self::$protectedRoutes[$method] = [];
+            }
+
             self::$protectedRoutes[$method][$action] = true;
         }
-    }
+    }   
 
     /**
      * Metodo para validar el token que recibes por url 
      * desde el enlace del correo
+     * @return bool
      */
-    private static function validateToken(): bool
-    {
-        $headers = getallheaders();
-        $token = $headers['Authorization'] ?? $_SESSION['token'] ?? null;
+    private static function validateToken(): bool{
+        $token = self::extractToken();
 
         if (!$token) {
             return false;
         }
 
-        if (strpos($token, 'Bearer ') === 0) {
-            $token = substr($token, 7);
+        return self::$security->validaToken($token) !== null;
+    }
+    
+    /**
+     * Metodo que extrae el token para validarlo
+     * @return string
+     */
+    private static function extractToken(): ?string{
+        $headers = getallheaders();
+        $token = $headers['Authorization'] ?? $_SESSION['token'] ?? null;
+
+        if ($token && strpos($token, 'Bearer ') === 0) {
+            return substr($token, 7);
         }
 
-        $decoded = self::$security->validaToken($token);
-        return $decoded !== null;
+        return $token;
     }
    
     /**
