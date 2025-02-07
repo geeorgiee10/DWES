@@ -9,8 +9,6 @@ use PayPal\Api\Amount;
 use PayPal\Api\Transaction;
 use PayPal\Api\Payer;
 use PayPal\Api\RedirectUrls;
-use PayPal\Api\RefundRequest;
-use PayPal\Api\Sale;
 use PayPal\Rest\ApiContext;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
@@ -19,8 +17,10 @@ class PayPalService {
 
     private $apiContext;
 
+    /**
+     * Constructor para inicializar las variables de configuración de paypal
+     */
     public function __construct() {
-        // Configuración de PayPal
         $this->apiContext = new ApiContext(
             new OAuthTokenCredential(
                 $_ENV['PAYPAL_CLIENT_ID'],     
@@ -29,20 +29,29 @@ class PayPalService {
         );
 
         $this->apiContext->setConfig([
-                'mode' => $_ENV['PAYPAL_API_URL'], // Cambia a 'live' cuando estés listo para producción
+                'mode' => $_ENV['PAYPAL_API_URL'],
         ]);
     }
 
  
+    /**
+     * Metodo que crea un pago usando la libreria de paypal
+     * @var int con el precio del pedido
+     * @var string con el tipo de moneda
+     * @var string con la descripcion del pago
+     * @var string con la url a devolver para llamar a paypal y pagar
+     * @var string con la url de cancelacion del pago
+     * @return void
+     */
     public function createPayment($totalAmount, $currency, $description, $returnUrl, $cancelUrl) {
         // Crear un objeto Payer
         $payer = new Payer();
         $payer->setPaymentMethod('paypal');
 
-        // Crear el monto total a pagar
+        // Crear el precio total a pagar
         $amount = new Amount();
         $amount->setCurrency($currency)
-            ->setTotal($totalAmount); // Monto total
+            ->setTotal($totalAmount); 
 
         // Crear la transacción
         $transaction = new Transaction();
@@ -68,17 +77,21 @@ class PayPalService {
             // Redirigir al usuario a la URL de PayPal
             foreach ($payment->getLinks() as $link) {
                 if ($link->getRel() == 'approval_url') {
-                    return $link->getHref(); // URL de redirección de PayPal
+                    return $link->getHref(); 
                 }
             }
         } catch (PayPalConnectionException $e) {
-            // Log de error o manejo de excepciones
             error_log("Error al crear el pago: " . $e->getData());
             return null;
         }
     }
 
-    
+    /**
+     * Metodo que ejecuta el pago
+     * @var id con el id del pago a realizar
+     * @var id con el id de la persona que paga
+     * @return void
+     */
     public function executePayment($paymentId, $payerId) {
         try {
             $payment = Payment::get($paymentId, $this->apiContext);
@@ -89,9 +102,8 @@ class PayPalService {
             // Ejecutar el pago
             $result = $payment->execute($execution, $this->apiContext);
 
-            return true; // El pago fue exitoso
+            return true;
         } catch (PayPalConnectionException $e) {
-            // Log de error o manejo de excepciones
             error_log("Error al ejecutar el pago: " . $e->getData());
             return false;
         }

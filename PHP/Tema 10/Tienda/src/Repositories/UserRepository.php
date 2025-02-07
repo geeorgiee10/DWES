@@ -255,6 +255,10 @@ class UserRepository {
     /**
      * Metodo que actualiza los campos de confirmado y contraseña del usuario que cambia
      * la contraseña
+     * @var int con el id del usuario a actualizar
+     * @var string con el token a actualizar
+     * @var string con la contraseña a actualizar
+     * @return bool
      */
     private function actualizarContraseñaUsuario(int $id, string $token, string $password): bool {
         $stmt = $this->conexion->prepare(

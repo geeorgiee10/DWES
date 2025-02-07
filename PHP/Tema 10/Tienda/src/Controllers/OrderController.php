@@ -65,7 +65,7 @@ class OrderController {
     /**
      * Metodo que guarda un pedido pidiendo los datos de localizacion,
      * actualizando el stock tras guardar el pedido y sus lineas y enviando
-     * un correo para con los datos del pedido
+     * un correo para con los datos del pedido y hace el pago
      * @return void
      */
     public function saveOrder(){
@@ -113,7 +113,7 @@ class OrderController {
                     $totalAmount = $_SESSION['totalCost']; 
                     $currency = 'EUR'; 
                     $description = 'Pedido en Fake Web Storage'; 
-                    $returnUrl = BASE_URL . 'order/paymentSuccess';
+                    $returnUrl = BASE_URL;
                     $cancelUrl = BASE_URL . 'order/paymentCancel'; 
 
                     $paypalUrl = $this->paypalService->createPayment($totalAmount, $currency, $description, $returnUrl, $cancelUrl);
@@ -249,6 +249,10 @@ class OrderController {
         }
     }
 
+    /**
+     * Metodo que actualiza el estado del pedido
+     * @var int con el id del pedido a actualizar
+     */
     public function updateStateOrder(int $id){
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
 
@@ -303,20 +307,27 @@ class OrderController {
     }
     
     
-    
+    /**
+     * Metodo que redirije si se cancela el pago
+     * @return void
+     */
     public function paymentCancel() {
         $this->pages->render('Order/paymentCancel');
     }
     
+    /**
+     * Metodo que redirije si el pago ha sido exitoso
+     * @return void
+     */
     public function paymentSuccess() {
         $paymentId = $_GET['paymentId'];
         $payerId = $_GET['PayerID'];
     
+        // Ejecuta el pago
         $paymentExecuted = $this->paypalService->executePayment($paymentId, $payerId);
     
         if ($paymentExecuted) {
-            header("Location: " . BASE_URL);
-            exit;
+            return true;
         } else {
             // Si el pago no fue exitoso
             $errores['payment'] = 'El pago no se completó correctamente.';

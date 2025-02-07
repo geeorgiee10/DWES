@@ -255,7 +255,10 @@ class UserController {
         }
     }
 
-
+    /**
+     * Metodo que comprueba el usuario registrado
+     * @return void
+     */
     public function checkUser(){
         $token = $_GET['token'] ?? null;
 
@@ -280,7 +283,11 @@ class UserController {
         exit;
     }   
 
-
+    /**
+     * Metodo que recoje el correo al que mandarle el correo de
+     * recuperacion de contraseña
+     * @return void
+     */
     public function password(){
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
@@ -357,6 +364,11 @@ class UserController {
     }
 
 
+    /**
+     * Metodo que cambia la contraseña si el usuario lo ha olvidado
+     * @var string con el token del usuario que va cambiar la contraseña
+     * @return void
+     */
     public function changePassword(string $token){
 
         if ($_SERVER['REQUEST_METHOD'] === 'GET'){
