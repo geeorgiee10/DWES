@@ -11,6 +11,7 @@ use Services\OrderService;
 use Services\OrderLineService;
 use Services\ProductService;
 use Services\PayPalService;
+use Controllers\CartController;
 
 
 
@@ -29,6 +30,7 @@ class OrderController {
     private OrderLineService $orderLineService;
     private ProductService $productService;
     private PayPalService $paypalService;
+    private CartController $cartController;
 
     
     /**
@@ -42,6 +44,7 @@ class OrderController {
         $this->orderLineService = new OrderLineService();
         $this->productService = new ProductService();
         $this->paypalService = new PayPalService();
+        $this->cartController = new CartController();
     }
 
     /**
@@ -135,6 +138,7 @@ class OrderController {
                             unset($_SESSION['carrito']);
                             unset($_SESSION['totalCost']);
                             unset($_SESSION['orderID']);
+                            setcookie('carrito', '', time() - 3600, "/");
                             $this->pages->render('Order/formOrder');
                             exit;
                         }
@@ -311,7 +315,8 @@ class OrderController {
         $paymentExecuted = $this->paypalService->executePayment($paymentId, $payerId);
     
         if ($paymentExecuted) {
-            return true;
+            header("Location: " . BASE_URL);
+            exit;
         } else {
             // Si el pago no fue exitoso
             $errores['payment'] = 'El pago no se completó correctamente.';
