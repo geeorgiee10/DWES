@@ -10,8 +10,6 @@
     <li><b>Rol:</b> <?php echo $_SESSION['usuario']["rol"]; ?></li>
     
 </ul>
-
-
 <a href="<?=  BASE_URL?>">Ir al inicio</a>
 
 </div>

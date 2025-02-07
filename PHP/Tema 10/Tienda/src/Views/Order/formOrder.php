@@ -11,6 +11,9 @@
 ?>
 <h2>Pedido realizado</h2>
 <?php unset($_SESSION['order'])?>
+
+<?php elseif(isset($errores['payment'])):?>
+<h2><?= $errores['payment'] ?></h2>
 <?php else: ?>
 
 <h2>Realizar pedido</h2>

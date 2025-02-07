@@ -14,7 +14,9 @@
 <?php else: ?>
 
 <h2>Actualizar producto</h2>
-<form action="<?= BASE_URL ?>Product/updateProduct/<?= $product[0]['id'] ?>" method="POST" enctype="multipart/form-data">
+<form action="<?= BASE_URL ?>Product/updateProduct/<?= $product[0]['id'] ?>" method="POSt" enctype="multipart/form-data">
+
+    <input type="hidden" name="_method" value="PUT">
 
     <label for="nombre">Categoria :</label>
     <!-- Si el campo es correcto guarda el valor sino lo es muestra debajo un error  -->

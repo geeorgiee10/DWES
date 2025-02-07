@@ -103,6 +103,45 @@ class OrderRepository {
         }
     }
 
+    /**
+     * Metodo que obtiene todos los pedidos de la base de datos
+     * @return array
+     */
+    public function seeAllOrders(): array {
+        try {
+            $stmt = $this->conexion->prepare("SELECT * FROM pedidos");
+
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            error_log("Error al obtener los pedidos: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Metodo que actualiza un pedido en la base de datos
+     * @var Category objeto con los datos del pedido a actualizar
+     * @var int id del pedido a actualizar
+     * @return bool|string
+     */
+    public function updateOrder(Order $order, int $id): bool|string{
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE pedidos SET estado = :estado WHERE id = :idPedido");
+
+               
+            $stmt->bindValue(':estado', $order->getEstado(), PDO::PARAM_STR);
+            $stmt->bindValue(':idPedido', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            return true;
+        } 
+        catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+
 
 
 }

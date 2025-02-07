@@ -1,0 +1,14 @@
+QUEDA POR HACER:
+- Recuperar la cuenta si se olvidan las credenciales.✅
+
+- El carrito de la compra se mantenga aunque se cierre la sesión. ✅
+
+- Cada usuario pueda ver sus pedidos y su estado. ✅
+
+- El administrador vea sus pedidos y los de todos los usuarios. Por supuesto, el administrador podrá modificar el estado de los pedidos. ✅
+
+- Gestione los pagos usando PayPal
+
+- Implemente una API REST para el CRUD . Al menos, se realizará en la tabla productos. Usa la API en el proyecto. No olvides devolver JSON.✅
+
+- Envíe la confirmación del correo con un token y en las cabeceras (no en la URL).✅

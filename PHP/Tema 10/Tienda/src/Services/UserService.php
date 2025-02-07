@@ -94,8 +94,44 @@ class UserService {
      * @var string token que confirmar
      */
     public function confirm(string $token){
-        return $this->repository->confirm($token);
+        return $this->repository->confirmarCuenta($token);
     }
 
+
+    /**
+      * Método que llama a repository para actualizar un usuario
+      * @var array con los datos a actualizar
+      * @var int con el id del usuario a actualizar
+      * @return bool|string
+      */
+      public function updateUserPassword(array $userData, int $id): bool|string {
+        try {
+            $user = new User(
+                null,
+                $userData['nombre'],
+                $userData['apellidos'],
+                $userData['correo'],
+                $userData['contrasena'],
+                $userData['rol'],
+                $userData['confirmado'],
+                $userData['token'],
+                $userData['token_exp']
+            );
+
+            return $this->repository->updateUserPassword($user, $id);
+        } 
+        catch (\Exception $e) {
+            error_log("Error al actualizar el usuario: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Metodo que llama al repository para confirmar la cuenta
+     * @var string token que confirmar
+     */
+    public function changePassword(string $token, string $password){
+        return $this->repository->cambiarContraseña($token, $password);
+    }
 
 }

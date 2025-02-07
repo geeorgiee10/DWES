@@ -26,5 +26,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 <p>Por favor, espere mientras verificamos su cuenta.</p>
             </div>
         <?php endif; ?>
+
     </div>
 </div>

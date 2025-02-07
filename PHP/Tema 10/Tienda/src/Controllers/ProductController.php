@@ -8,6 +8,7 @@ use Lib\Utils;
 use Services\ProductService;
 use Services\CategoryService;
 use Services\OrderLineService;
+use API\ProductApiController;
 
 
 /**
@@ -20,6 +21,7 @@ class ProductController {
      */
     private Pages $pages;
     private Utils $utils;
+    private ProductApiController $productApiController;
     private ProductService $productService;
     private OrderLineService $orderLineService;
     private CategoryService $categoryService;
@@ -31,6 +33,7 @@ class ProductController {
     public function __construct() {
         $this->pages = new Pages();
         $this->utils = new Utils();
+        $this->productApiController = new ProductApiController();
         $this->productService = new ProductService();
         $this->orderLineService = new OrderLineService();
         $this->categoryService = new CategoryService();
@@ -50,8 +53,13 @@ class ProductController {
         }
 
 
-        $productos = $this->productService->mostrarProductos();
+        //$this->productApiController->index();
+        ob_start();
+        $this->productApiController->index();
+        $response = json_decode(ob_get_clean(), true);
 
+        $productos = $response['data'] ?? [];
+        //die(print_r($productos));
         $this->pages->render('Product/gestion', 
         [
             'admin' => $admin,
@@ -111,47 +119,49 @@ class ProductController {
                 $errores['imagen'] = "Error al cargar la imagen: " . $_FILES['imagen']['error'];
             }
 
-
-                $producto = new Product(
-                    null,
-                    $_POST['categoria'],
-                    $_POST['nombre'],
-                    $_POST['descripcion'],
-                    $_POST['precio'],
-                    $_POST['stock'],
-                    $_POST['oferta'],
-                    $_POST['fecha'],
-                    $imagenNombre
-                );
-
+            $producto = new Product(
+                null,
+                $_POST['categoria'],
+                $_POST['nombre'],
+                $_POST['descripcion'],
+                $_POST['precio'],
+                $_POST['stock'],
+                $_POST['oferta'],
+                $_POST['fecha'],
+                $imagenNombre
+            );
+    
                 // Sanitizar datos
                 $producto->sanitizarDatos();
 
                 // Validar datos
                 $errores = $producto->validarDatosProductos();
-
                 if (empty($errores)) {
                     
-                    $productData = [
-                        'categoria_id' => $producto->getCategoriaId(),
-                        'nombre' => $producto->getNombre(),
-                        'descripcion' => $producto->getDescripcion(),
-                        'precio' => $producto->getPrecio(),
-                        'stock' => $producto->getStock(),
-                        'oferta' => $producto->getOferta(),
-                        'fecha' => $producto->getFecha(),
-                        'imagen' => $producto->getImagen(),
-                    ];
+                    $apiData = json_encode([
+                        'categoria_id' => $_POST['categoria'],
+                        'nombre' => $_POST['nombre'],
+                        'descripcion' => $_POST['descripcion'],
+                        'precio' => $_POST['precio'],
+                        'stock' => $_POST['stock'],
+                        'oferta' => $_POST['oferta'] ?? '',
+                        'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+                        'imagen' => $imagenNombre
+                    ]);
 
-                    $resultado = $this->productService->guardarProductos($productData);
+                    
+                    ob_start();
+                    $this->productApiController->store($apiData);
+                    $response = json_decode(ob_get_clean(), true);
+                    //die(var_dump($response));
 
-                    if ($resultado === true) {
+                    if (isset($response['mensaje'])) {
                         $_SESSION['guardado'] = true;
                         $this->pages->render('Product/formProducto');
                         exit;
                     } 
                     else {
-                        $errores['db'] = "Error al guardar el producto: " . $resultado;
+                        $errores = $response['errores'] ?? ['db' => 'Error al guardar el producto'];
                         $this->pages->render('Product/formProducto', ["errores" => $errores]);
                     }
                 } 
@@ -168,7 +178,19 @@ class ProductController {
      * @return void
      */
     public function detailProduct(int $id){
-        $details = $this->productService->detailProduct($id);
+        ob_start();
+        $this->productApiController->show($id);
+        $response = json_decode(ob_get_clean(), true);
+
+        $details = [];
+        if (isset($response['data'])) {
+            if (isset($response['data'][0])) {
+                $details = $response['data'];
+            } 
+            else if (is_array($response['data'])) {
+                $details = [$response['data']];
+            }
+        }
 
         //die(var_dump(($details)));
 
@@ -190,9 +212,10 @@ class ProductController {
         }
         else{
             $lines = $this->orderLineService->seeProductOrdersLine($id);
-            if($lines > 0){
+            if(!empty($lines)){
                 $update = $this->productService->updateCategoryProduct($id);
                 if ($update === true) {
+                    die("he entrado 1");
                     header("Location: " . BASE_URL ."");
                 } 
                 else {
@@ -201,9 +224,11 @@ class ProductController {
                 }
             }
             else{
-                $resultado = $this->productService->deleteProduct($id);
+                ob_start();
+                $this->productApiController->destroy($id);
+                $resultado = json_decode(ob_get_clean(), true);
 
-                if ($resultado === true) {
+                if (isset($resultado['mensaje'])) {
                     header("Location: " . BASE_URL ."");
                     exit;
                 } 
@@ -247,7 +272,9 @@ class ProductController {
 
         else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['_method']) && $_POST['_method'] === 'PUT') {
+                $_SERVER['REQUEST_METHOD'] = 'PUT';
+            }
 
             $imagenNombre = '';
             $rutaCarpeta = '../../public/img';
@@ -274,12 +301,14 @@ class ProductController {
                 $errores['imagen'] = "Error al cargar la imagen: " . $_FILES['imagen']['error'];
             }
 
-            $product = $this->productService->detailProduct($id);
+            ob_start();
+            $this->productApiController->show($id);
+            $product = json_decode(ob_get_clean(), true);
+
 
             if($imagenNombre === ''){
-                $imagenNombre = $product[0]['imagen'];
+                $imagenNombre = $product["data"]["imagen"];
             }
-
 
                 $producto = new Product(
                     null,
@@ -301,7 +330,7 @@ class ProductController {
 
                 if (empty($errores)) {
                     
-                    $productData = [
+                    $apiData = json_encode([
                         'categoria_id' => $producto->getCategoriaId(),
                         'nombre' => $producto->getNombre(),
                         'descripcion' => $producto->getDescripcion(),
@@ -310,17 +339,19 @@ class ProductController {
                         'oferta' => $producto->getOferta(),
                         'fecha' => $producto->getFecha(),
                         'imagen' => $producto->getImagen(),
-                    ];
+                    ]);
 
-                    $resultado = $this->productService->updateProduct($productData, $id);
-
-                    if ($resultado === true) {
+                    ob_start();
+                    $this->productApiController->update($id, $apiData);
+                    $resultado = json_decode(ob_get_clean(), true);
+                    
+                    if (isset($resultado['mensaje'])) {
                         $_SESSION['actualizado'] = true;
                         $this->pages->render('Product/formUpdate');
                         exit;
                     } 
                     else {
-                        $errores['db'] = "Error al actualizar el producto: " . $resultado;
+                        $errores = $response['errores'] ?? ['db' => 'Error al actualizar el producto'];
                         $this->pages->render('Product/formUpdate', ["errores" => $errores]);
                     }
                 } 

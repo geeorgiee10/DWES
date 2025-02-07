@@ -152,6 +152,33 @@ class Order {
         $this->localidad = Validar::sanitizeString($this->localidad);
     }
 
+    /**
+     * Metodo para sanetizar los datos recibidos por el formulario
+     * @return void
+     */
+    public function sanitizarDatosActualizado(): void {
+        $this->estado = Validar::sanitizeString($this->estado);
+    }
+
+    /**
+     * Metodo para validar los campos de los formularios
+     * @return array array con los errores en caso de que haya
+     */
+    public function validarDatosActualizado(): array {
+        $errores = [];
+    
+        // Validar dirección
+        if (empty($this->estado)) {
+            $errores["estado"] = "El campo 'estado' es obligatorio";
+        } 
+
+        if (!Validar::validateString($this->estado)) {
+            $errores["estado"] = "El formato del estado no es valido";
+        }
+    
+        return $errores;
+    }
+
     
 
 }

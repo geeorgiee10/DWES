@@ -31,6 +31,7 @@ class ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397
         ),
         'P' => 
         array (
+            'Psr\\Log\\' => 8,
             'PhpOption\\' => 10,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
@@ -58,6 +59,10 @@ class ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397
         'C' => 
         array (
             'Controllers\\' => 12,
+        ),
+        'A' => 
+        array (
+            'API\\' => 4,
         ),
     );
 
@@ -89,6 +94,10 @@ class ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397
         'Repositories\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/Repositories',
+        ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
         'PhpOption\\' => 
         array (
@@ -126,6 +135,20 @@ class ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397
         array (
             0 => __DIR__ . '/../..' . '/src/Controllers',
         ),
+        'API\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/API',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'PayPal' => 
+            array (
+                0 => __DIR__ . '/..' . '/paypal/rest-api-sdk-php/lib',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -142,6 +165,7 @@ class ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit39ff102e0ec9b8cee127fddf5ba8f397::$classMap;
 
         }, null, ClassLoader::class);

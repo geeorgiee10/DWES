@@ -173,5 +173,104 @@ class UserRepository {
     }
     
 
+    /**
+     * Metodo que actualizar un usuario de la base de datos
+     * @var Product datos a actualizar en la base de datos
+     * @var int entero con el id del usuario a actualizar
+     * @return bool|string
+     */
+    public function updateUserPassword (User $user, int $id): bool|string{
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE usuarios SET token = :token, token_exp = :token_exp  WHERE id = :id");
+
+            $stmt->bindValue(':token', $user->getToken(), PDO::PARAM_STR);
+            $stmt->bindValue(':token_exp', $user->getToken_Exp(), PDO::PARAM_STR);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+            return true;
+        } 
+        catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
+
+
+
+
+
+    /**
+     * Metodo para cambiar la contraseña de un usuario en la base de datos
+     * @var string con el token
+     * @var string con la contraseña a cambiar
+     * @return bool
+     */
+    public function cambiarContraseña(string $token, string $password): bool {
+        try {
+            $usuario = $this->obtenerUsuarioPorTokenContraseña($token);
+    
+            if (!$usuario || $this->esTokenExpiradoContraseña($usuario['token_exp'])) {
+                return false;
+            }
+    
+            return $this->actualizarContraseñaUsuario($usuario['id'], $token, $password);
+        } catch (PDOException $e) {
+            error_log("Error al confirmar la cuenta: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Metodo para obtener el usuario dependiendo del token que le pases
+     * @var string token del usuario a sacar
+     * @return array
+     */
+    private function obtenerUsuarioPorTokenContraseña(string $token): ?array {
+        $stmt = $this->conexion->prepare(
+            "SELECT id, confirmado, token_exp FROM usuarios WHERE token = :token"
+        );
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        $stmt->closeCursor();
+    
+        return $usuario ?: null;
+    }
+    
+    /**
+     * Metodo para comprobar si el token que se le pasa a expirado
+     * @var string con la fecha de expiracion del token a comprobar
+     * @return bool
+     */
+    private function esTokenExpiradoContraseña(string $tokenExp): bool {
+        $fechaExpiracion = new DateTime($tokenExp);
+        $fechaActual = new DateTime();
+    
+        return $fechaActual > $fechaExpiracion;
+    }
+    
+    /**
+     * Metodo que actualiza los campos de confirmado y contraseña del usuario que cambia
+     * la contraseña
+     */
+    private function actualizarContraseñaUsuario(int $id, string $token, string $password): bool {
+        $stmt = $this->conexion->prepare(
+            "UPDATE usuarios SET password = :password, token = NULL, token_exp = NULL 
+             WHERE id = :id AND token = :token"
+        );
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        $stmt->bindValue(':password', $password, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        $actualizado = $stmt->rowCount() > 0;
+    
+        $stmt->closeCursor();
+    
+        return $actualizado;
+    }
 
 }

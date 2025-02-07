@@ -38,13 +38,13 @@
     <?php endif; ?>
 
     <label for="precio">Precio: </label>
-    <input type="number" name="precio" id="precio" value="<?= $_POST['precio'] ?? '' ?>"><br><br>
+    <input type="number" name="precio" id="precio" value="<?= $_POST['precio'] ?? '0.0' ?>"><br><br>
     <?php if (isset($errores['precio'])): ?>
         <p style="color:red;"><?php echo $errores['precio']; ?></p>
     <?php endif; ?>
 
     <label for="stock">Stock: </label>
-    <input type="number" name="stock" id="stock" value="<?= $_POST['stock'] ?? '' ?>"><br><br>
+    <input type="number" name="stock" id="stock" value="<?= $_POST['stock'] ?? '0' ?>"><br><br>
     <?php if (isset($errores['stock'])): ?>
         <p style="color:red;"><?php echo $errores['stock']; ?></p>
     <?php endif; ?>

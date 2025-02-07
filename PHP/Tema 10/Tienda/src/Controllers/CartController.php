@@ -37,6 +37,8 @@ class CartController {
      * @return void
      */
     public function loadCart(){
+        $this->loadCartFromCookie();
+
         $total = $this->priceTotal();
 
         $_SESSION['totalCost'] = $total;
@@ -94,6 +96,7 @@ class CartController {
                 'cantidad' => 1  
             );
         }
+        $this->saveCartInCookie();
 
         //die(var_dump($_SESSION['carrito']));
         $this->loadCart();
@@ -106,6 +109,7 @@ class CartController {
      */
     public function clearCart(){
         unset($_SESSION['carrito']);
+        setcookie('carrito', '', time() - 3600, "/");
 
         //$this->loadCart();
         header("Location: " . BASE_URL . "Cart/loadCart");
@@ -119,6 +123,7 @@ class CartController {
     public function removeItem (int $id){
         if(isset($_SESSION['carrito'][$id])){
             unset($_SESSION['carrito'][$id]);
+            $this->saveCartInCookie();
 
             //$this->loadCart();
             header("Location: " . BASE_URL . "Cart/loadCart");
@@ -144,12 +149,16 @@ class CartController {
                 unset($_SESSION['carrito'][$id]);
             }
 
+            $this->saveCartInCookie();
+
             //$this->loadCart(); 
             header("Location: " . BASE_URL . "Cart/loadCart");
         }
         else{
             $error = 'Error al quitar unidades';
             $total = $this->priceTotal();
+
+            $this->saveCartInCookie();
 
             $this->pages->render('Cart/cart',['error' => $error, 'total' => $total]); 
         }
@@ -168,6 +177,7 @@ class CartController {
             }
             else{
                 $_SESSION['carrito'][$id]['cantidad'] += 1;
+                $this->saveCartInCookie();
                 //$this->loadCart();
                 header("Location: " . BASE_URL . "Cart/loadCart");
             }
@@ -180,7 +190,28 @@ class CartController {
         }
     }
 
+    /**
+     * Metodo que guarda la variable de sesión en una cookie para que no se pierda al 
+     * cerrar sesión
+     * @return void
+     */
+    public function saveCartInCookie(){
+        if(isset($_SESSION['carrito'])){
+            $carrito_json = json_encode($_SESSION['carrito']);
 
+            setcookie('carrito', $carrito_json, time() + (10 * 365 * 24 * 60 * 60), "/");
+        }
+    }
+
+    /**
+     * Metodo que carga el carrito desde la cookie
+     * @return void
+     */
+    public function loadCartFromCookie(){
+        if(isset($_COOKIE['carrito'])) {
+            $_SESSION['carrito'] = json_decode($_COOKIE['carrito'], true);
+        }
+    }
    
 
 

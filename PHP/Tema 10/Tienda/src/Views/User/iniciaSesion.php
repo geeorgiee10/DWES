@@ -30,6 +30,11 @@
     <p>Si no tienes una cuenta creada <a href="<?= BASE_URL ?>User/registrar">Registrate</a></p>
 
     <p><a href="<?php echo BASE_URL; ?>">Volver a inicio</a></p>
+
+    <p><a href="<?=  BASE_URL?>User/password">Recuperar Contraseña</a></p>
+
+    
 </form>
+
 
 </div>

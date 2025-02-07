@@ -28,6 +28,7 @@ class Product {
         private string $imagen = "",
     ) {
         $this->conexion = new BaseDatos();
+        $this->precio = (float) str_replace(',', '.', $this->precio);
     }
 
     // Getters

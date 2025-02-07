@@ -10,6 +10,10 @@
         <a href="<?= BASE_URL?>Order/seeOrders" class="botonesProductos">Ver mis pedidos</a>
     <?php endif;?>
 
+    <?php if(isset($_SESSION['usuario']) && $admin): ?>
+        <a href="<?= BASE_URL?>Order/seeAllOrders" class="botonesProductos">Ver todos los pedidos</a>
+    <?php endif;?>
+
 </div>
 
 <div id="producto">

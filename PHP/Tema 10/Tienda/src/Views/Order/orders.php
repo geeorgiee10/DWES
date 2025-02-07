@@ -44,6 +44,9 @@
                         </tr>
                         <?php endif; endforeach; endforeach;?>
                     </table>
+                    <?php if ($admin): ?>
+                        <a href="<?= BASE_URL?>Order/updateStateOrder/<?= htmlspecialchars($order['id']) ?>" class="botonesProductos">Actualizar estado</a>
+                    <?php endif; ?>
         </li>
     <?php endforeach; ?>
     <?php endif;?>

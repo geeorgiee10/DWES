@@ -9,7 +9,8 @@
             "Repositories\\": "./src/Repositories",
             "Services\\": "./src/Services",
             "Views\\": "./src/Views",
-            "Routes\\": "./src/Routes"
+            "Routes\\": "./src/Routes",
+            "API\\": "./src/API"
         }
     },
     "authors": [
@@ -21,6 +22,7 @@
     "require": {
         "vlucas/phpdotenv": "^5.6",
         "phpmailer/phpmailer": "^6.9",
-        "firebase/php-jwt": "^6.10"
+        "firebase/php-jwt": "^6.10",
+        "paypal/rest-api-sdk-php": "^1.14"
     }
 }

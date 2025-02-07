@@ -9,6 +9,8 @@ use Controllers\CategoryController;
 use Controllers\CartController;
 use Controllers\OrderController;
 
+use API\ProductApiController;
+
 /**
  * Clase para controlar las rutas de la aplicacion
  */
@@ -59,6 +61,35 @@ class Routes{
         Router::add('GET', 'User/token', function() {
             (new UserController())->checkUser();
         });
+
+        Router::add('GET', 'User/password', function() {
+            (new UserController())->password();
+        });
+
+        Router::add('POST', 'User/password', function() {
+            (new UserController())->password();
+        });
+
+
+
+
+        /*Router::add('GET', 'User/change/:token', function(string $token) {
+            (new UserController())->changePassword($token);
+        });*/
+
+
+        Router::add('GET', 'User/changePassword/', function() {
+            if (isset($_GET['token'])) {
+                (new UserController())->changePassword($_GET['token']);
+            }
+        });
+
+        Router::add('POST', 'User/changePassword/', function() {
+            if (isset($_GET['token'])) {
+                (new UserController())->changePassword($_GET['token']);
+            }
+        });
+
 
 
 
@@ -172,6 +203,55 @@ class Routes{
         Router::add('GET','/Order/seeOrders',function(){
             (new OrderController())->seeOrders();
         });
+
+        Router::add('GET','/Order/seeAllOrders',function(){
+            (new OrderController())->seeAllOrders();
+        });
+
+        Router::add('GET','/Order/updateStateOrder/:id',function(int $id){
+            (new OrderController())->updateStateOrder($id);
+        });
+
+        Router::add('POST','/Order/updateStateOrder/:id',function(int $id){
+            (new OrderController())->updateStateOrder($id);
+        });
+
+        //require_once __DIR__ . '/../API/ProductApiController.php';
+
+        //Rutas de la API
+        Router::add('GET', '/api/productos', function() {
+            (new ProductApiController())->index();
+        });
+        
+        Router::add('POST', '/api/productos/:id', function(int $id) {
+            (new ProductApiController())->store($id);
+        });
+        
+        Router::add('GET', '/api/productos/:id', function(int $id) {
+            (new ProductApiController())->show($id);
+        });
+        
+        Router::add('PUT', '/api/productos/:id', function(int $id, $productData) {
+            (new ProductApiController())->update($id, $productData);
+        });
+        
+        Router::add('DELETE', '/api/productos/:id', function(int $id) {
+            (new ProductApiController())->destroy($id);
+        });
+
+
+
+
+        Router::add('GET', '/paypal/payment-success', function() {
+            (new OrderController())->paymentSuccess();
+        });
+        
+        Router::add('GET', '/paypal/payment-cancel', function() {
+            (new OrderController())->paymentCancel();
+        });
+        
+        
+
 
 
         Router::dispatch();

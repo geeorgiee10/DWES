@@ -65,4 +65,40 @@ class OrderService {
     public function seeOrders(): array {
         return $this->repository->seeOrders();
     }
+
+    /**
+     * Metodo que llamar al repository para ver todos los pedidos
+     * @return array
+     */
+    public function seeAllOrders(): array {
+        return $this->repository->seeAllOrders();
+    }
+
+    /**
+     * Metodo que llama al repository para actualizar un pedido
+     * @var array con los datos a actualizar
+     * @var int id del pedido a actualizar
+     * @return bool|string
+     */
+    public function updateOrder(array $userData, int $id): bool|string {
+        try {
+            $order = new Order(
+                null,                        
+                0,                            
+                '',          
+                '',          
+                '',          
+                0.0,                          
+                $userData['estado'],                           
+                '',                           
+                ''                           
+            );
+
+            return $this->repository->updateOrder($order, $id);
+        } 
+        catch (\Exception $e) {
+            error_log("Error al actualizar la categoria: " . $e->getMessage());
+            return false;
+        }
+    }
 }

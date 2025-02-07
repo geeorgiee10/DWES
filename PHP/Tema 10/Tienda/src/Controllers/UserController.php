@@ -115,6 +115,8 @@ class UserController {
                     $resultado = $this->userService->guardarUsuarios($userData);
 
                     if ($resultado === true) {
+                        //header('Authorization: Bearer ' . $token);
+
                         $this->email->confirmacionCuenta($userData['correo'], $userData['nombre'], $userData['token']);
                         $_SESSION['registrado'] = true;
                         $this->pages->render('User/registrar');
@@ -253,7 +255,7 @@ class UserController {
         }
     }
 
-    
+
     public function checkUser(){
         $token = $_GET['token'] ?? null;
 
@@ -276,8 +278,147 @@ class UserController {
 
         header("Location: " . BASE_URL);
         exit;
-    }
-    
+    }   
 
+
+    public function password(){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+
+            if($this->utils->isSession()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                $this->pages->render('User/cambiarContraseña');
+            }
+        }
+
+        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+          if($_POST['correo']){
+
+            $correo = $_POST['correo'] ?? '';
+            $user = new User(null, "", "", $correo, "", "", false, "", "");
+            $user->sanitizarDatos();
+        
+            $errores = $user->validarDatosRecuperar();
+
+            if (!empty($errores)) {
+                $this->pages->render('User/cambiarContraseña', ["errores" => $errores]);
+                return;
+            }
+
+            $userToRecover = $this->userService->obtenerCorreo($correo);
+
+            $data = [
+                'id' => $userToRecover['id'],
+                'correo' => $correo
+            ];
     
+            $token = $this->security->createToken($this->security->secretKey(), $data);
+            $key = $this->security->secretKey();
+            $token_exp = $this->security->generateEmailToken();
+
+            $userData = [
+                'nombre' => '',
+                'apellidos' => '',
+                'correo' => $correo,
+                'contrasena' => '',
+                'rol' => '',
+                'confirmado' => '',
+                'token' => $token,
+                'token_exp' => $token_exp['expiration']
+            ];
+
+
+            $resultado = $this->userService->updateUserPassword($userData, $userToRecover['id']);
+
+            if ($resultado === true) {
+                $this->email->recuperarContrasela($userData['correo'], $userData['nombre'], $userData['token']);
+                $_SESSION['cambio'] = true;
+                $this->pages->render('User/cambiarContraseña');
+                exit;
+            } 
+            else {
+                $errores['db'] = "Error al actualizar el token en el usuario: " . $resultado;
+                $this->pages->render('User/cambiarContraseña', [
+                    "errores" => $errores,
+                    "user" => $this->user
+                ]);
+            }
+
+          }
+          else{
+            $_SESSION['falloDatos'] = 'fallo';
+          }
+        }
+
+    }
+
+
+    public function changePassword(string $token){
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'){
+
+            if($this->utils->isSession()){
+                header("Location: " . BASE_URL ."");
+            }
+            else{
+
+                if (!$token) {
+                    $_SESSION['error'] = "Token no proporcionado";
+                    header("Location: " . BASE_URL);
+                    exit;
+                }
+                else{
+                    $this->pages->render('User/formCambiarContraseña', ["token" => $token]);
+                }
+                
+            }
+        }
+
+        else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+          if($_POST['data']){
+
+                $data = $_POST['data'];
+                $user = $this->user = User::fromArray($data);
+                
+                // Sanitizar datos
+                $user->sanitizarDatos();
+
+                // Validar datos
+                $errores = $user->validarDatosCambioContraseña();
+
+                if($data['contrasena'] !== $data['confirmar_contrasena']){
+                    $errores['confirmar_contrasena'] = "Las contraseñas no son iguales";
+                }
+
+                if (!empty($errores)) {
+                    $this->pages->render('User/formCambiarContraseña', ["errores" => $errores]);
+                    return;
+                }
+
+                $contraseñaCambiar = $this->security->encryptPassw($user->getContrasena());
+
+                //$token = $_GET['token'] ?? null;
+                try {
+                    $resultado = $this->userService->changePassword($token, $contraseñaCambiar);
+                    if ($resultado) {
+                        $_SESSION['mensaje'] = "Contraseña cambiada exitosamente. Ya puedes iniciar sesión.";
+                    } else {
+                        $_SESSION['error'] = "No se pudo cambiar la contraseña. El token puede haber expirado o ser inválido.";
+                    }
+                    header("Location: " . BASE_URL);
+                } catch (\Exception $e) {
+                    $_SESSION['error'] = "Error al cambiar la contraseña: " . $e->getMessage();
+                }
+
+          }
+          else{
+            $_SESSION['falloDatos'] = 'fallo';
+          }
+        }
+    }
 }
