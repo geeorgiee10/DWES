@@ -189,6 +189,7 @@ class UserRepository {
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
             $stmt->execute();
+            $stmt->closeCursor();
             return true;
         } 
         catch (PDOException $e) {

@@ -138,7 +138,7 @@ class OrderController {
                             unset($_SESSION['carrito']);
                             unset($_SESSION['totalCost']);
                             unset($_SESSION['orderID']);
-                            setcookie('carrito', '', time() - 3600, "/");
+                            $this->cartController->clearCart();
                             $this->pages->render('Order/formOrder');
                             exit;
                         }

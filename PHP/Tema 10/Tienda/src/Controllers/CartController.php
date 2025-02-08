@@ -5,9 +5,11 @@ namespace Controllers;
 use Lib\Pages;
 use Models\Product;
 use Lib\Utils;
+use Models\Cart;
 use Services\ProductService;
 use Services\CategoryService;
-
+use Services\CartService;
+use Services\CartItemService;
 
 /**
  * Clase para controlar el carrito
@@ -20,7 +22,8 @@ class CartController {
     private Pages $pages;
     private Utils $utils;
     private ProductService $productService;
-    private CategoryService $categoryService;
+    private CartItemService $cartItemService;
+    private CartService $cartService;
     
     /**
      * Constructor para inicializar las variables
@@ -29,7 +32,8 @@ class CartController {
         $this->pages = new Pages();
         $this->utils = new Utils();
         $this->productService = new ProductService();
-        $this->categoryService = new CategoryService();
+        $this->cartService = new CartService();
+        $this->cartItemService = new CartItemService();
     }
 
     /**
@@ -37,11 +41,20 @@ class CartController {
      * @return void
      */
     public function loadCart(){
-        $this->loadCartFromCookie();
+        if (!isset($_SESSION['carrito'])) {
+            $_SESSION['carrito'] = []; 
+        }
 
         $total = $this->priceTotal();
 
         $_SESSION['totalCost'] = $total;
+
+        if(isset($_SESSION['usuario'])){
+            $cartUser = $this->loadFromDatabase();
+            if(empty($cartUser)){
+                $this->addToDatabase();
+            }
+        }
 
         $this->pages->render('Cart/cart'); 
 
@@ -55,7 +68,7 @@ class CartController {
         $total = 0;
 
 
-        if(isset($_SESSION['carrito']) || !empty($_SESSION['carrito'])){
+        if(isset($_SESSION['carrito']) && !empty($_SESSION['carrito'])){
             foreach($_SESSION['carrito'] as $item){
                 $total += $item['precio'] * $item['cantidad'];
             }
@@ -96,7 +109,18 @@ class CartController {
                 'cantidad' => 1  
             );
         }
-        $this->saveCartInCookie();
+        
+
+        if(isset($_SESSION['usuario'])){
+            $cart = $this->cartService->loadCart();
+
+            if($cart){
+                $this->cartItemService->addNewProductsToCart($cart['id']);
+
+                $total = $this->priceTotal();
+                $this->cartService->updateTotalPrice($cart['id'], $total);
+            }
+        }
 
         //die(var_dump($_SESSION['carrito']));
         $this->loadCart();
@@ -109,7 +133,10 @@ class CartController {
      */
     public function clearCart(){
         unset($_SESSION['carrito']);
-        setcookie('carrito', '', time() - 3600, "/");
+
+        if (isset($_SESSION['usuario'])) {
+            $this->cartService->deleteCart($_SESSION['usuario']['id']);
+        }
 
         //$this->loadCart();
         header("Location: " . BASE_URL . "Cart/loadCart");
@@ -123,7 +150,18 @@ class CartController {
     public function removeItem (int $id){
         if(isset($_SESSION['carrito'][$id])){
             unset($_SESSION['carrito'][$id]);
-            $this->saveCartInCookie();
+
+            if (isset($_SESSION['usuario'])) {
+                $cart = $this->cartService->loadCart();
+    
+                if ($cart) {
+                    $this->cartItemService->deleteItemFromCart($cart['id'], $id);
+                }
+            }
+
+            $total = $this->priceTotal();
+
+            $this->cartService->updateTotalPrice($cart['id'], $total);
 
             //$this->loadCart();
             header("Location: " . BASE_URL . "Cart/loadCart");
@@ -145,20 +183,36 @@ class CartController {
         if(isset($_SESSION['carrito'][$id])){
             $_SESSION['carrito'][$id]['cantidad'] -= 1;
 
+            
+            /* Actualizar cantidad en la base de datos si existe el producto en el
+            carrito del usuario y borrar el producto si es 0 */
+            if (isset($_SESSION['usuario'])) {
+                $cart = $this->cartService->loadCart();
+                if ($cart) {
+                    if ($_SESSION['carrito'][$id]['cantidad'] === 0) {
+                        $this->cartItemService->deleteItemFromCart($cart['id'], $id); 
+                    } 
+                    else {
+                        $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);    
+                    }
+                    
+                }
+            }
+
             if($_SESSION['carrito'][$id]['cantidad'] === 0){
                 unset($_SESSION['carrito'][$id]);
             }
 
-            $this->saveCartInCookie();
+            $total = $this->priceTotal();
 
-            //$this->loadCart(); 
+            $this->cartService->updateTotalPrice($cart['id'], $total);
+
             header("Location: " . BASE_URL . "Cart/loadCart");
         }
         else{
             $error = 'Error al quitar unidades';
             $total = $this->priceTotal();
 
-            $this->saveCartInCookie();
 
             $this->pages->render('Cart/cart',['error' => $error, 'total' => $total]); 
         }
@@ -177,8 +231,18 @@ class CartController {
             }
             else{
                 $_SESSION['carrito'][$id]['cantidad'] += 1;
-                $this->saveCartInCookie();
-                //$this->loadCart();
+                /* Actualizar cantidad en la base de datos si existe el producto en el
+                carrito del usuario */
+                if (isset($_SESSION['usuario'])) {
+                    $cart = $this->cartService->loadCart();
+                    if ($cart) {
+                        $this->cartItemService->updateCartItem($cart['id'], $id, $_SESSION['carrito'][$id]['cantidad']);
+
+                        $total = $this->priceTotal();
+
+                        $this->cartService->updateTotalPrice($cart['id'], $total);
+                    }
+                }
                 header("Location: " . BASE_URL . "Cart/loadCart");
             }
         }
@@ -191,29 +255,67 @@ class CartController {
     }
 
     /**
-     * Metodo que guarda la variable de sesión en una cookie para que no se pierda al 
-     * cerrar sesión
+     * Metodo que añade el carrito a la base de datos
      * @return void
      */
-    public function saveCartInCookie(){
-        if(isset($_SESSION['carrito'])){
-            $carrito_json = json_encode($_SESSION['carrito']);
-
-            setcookie('carrito', $carrito_json, time() + (10 * 365 * 24 * 60 * 60), "/");
-        }
+    public function addToDatabase(){
+        $this->cartService->addToCart();
     }
 
     /**
-     * Metodo que carga el carrito desde la cookie
+     * Metodo que carga el carrito de la base de datos
      * @return void
      */
-    public function loadCartFromCookie(){
-        if(isset($_COOKIE['carrito'])) {
-            $_SESSION['carrito'] = json_decode($_COOKIE['carrito'], true);
+    public function loadFromDatabase(){
+        $cart = $this->cartService->loadCart();
+
+        if (empty($cart)) {
+            return null;
         }
+
+        $cartItems = $this->cartItemService->loadCartItems($cart['id']);
+
+        //die(var_dump($cartItems));
+
+        if (!empty($cartItems)) {  
+    
+            foreach ($cartItems as $item) {
+                $products = $this->productService->detailProduct($item['product_id']);
+                //die(var_dump($products));
+                $_SESSION['carrito'][$item['product_id']] = [
+                    'id' => $item['product_id'],
+                    'imagen' => $products[0]['imagen'],  
+                    'nombre' => $products[0]['nombre'],  
+                    'precio' => $item['price'],
+                    'cantidad' => $item['quantity'],
+                    'stock' => $products[0]['stock']
+                ];
+            }
+        }
+
+        return $cart;
     }
-   
 
-
+    /**
+     * Metodo que actualiza la cantidad de un producto del carrito
+     * en la base de datos
+     * @var int con el id del producto a actualizar
+     * @var int con la cantidad a actualizar
+     * @return void
+     */
+    public function updateProductQuantity(int $id, int $quantity) {
+        if (isset($_SESSION['carrito'][$id])) {
+            $_SESSION['carrito'][$id]['cantidad'] = $quantity;
+    
+            if (isset($_SESSION['usuario'])) {
+                $cart = $this->cartService->loadCart();
+                if ($cart) {
+                    $this->cartItemService->updateCartItem($cart['id'], $id, $quantity);
+                }
+            }
+        }
+    
+        header("Location: " . BASE_URL . "Cart/loadCart");
+    }
     
 }

@@ -60,7 +60,6 @@ class OrderRepository {
             $this->OrderLineRepository->saveOrderLines($pedidoId);
 
             //$this->conexion->commit();
-
             return true;
         } 
         catch (PDOException $e) {
