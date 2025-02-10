@@ -7,7 +7,7 @@ QUEDA POR HACER:
 
 - El administrador vea sus pedidos y los de todos los usuarios. Por supuesto, el administrador podrá modificar el estado de los pedidos. ✅
 
-- Gestione los pagos usando PayPal
+- Gestione los pagos usando PayPal ✅
 
 - Implemente una API REST para el CRUD . Al menos, se realizará en la tabla productos. Usa la API en el proyecto. No olvides devolver JSON.✅
 

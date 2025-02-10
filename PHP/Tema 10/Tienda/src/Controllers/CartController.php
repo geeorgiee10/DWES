@@ -97,7 +97,15 @@ class CartController {
         //unset($_SESSION['carrito']);
 
         if (isset($_SESSION['carrito'][$id])) {
-            $_SESSION['carrito'][$id]['cantidad'] += 1;  
+            if($_SESSION['carrito'][$id]['cantidad'] === $_SESSION['carrito'][$id]['stock']){
+                //$this->loadCart(); 
+                header("Location: " . BASE_URL . "Cart/loadCart");
+                exit;
+            }
+            else{
+                $_SESSION['carrito'][$id]['cantidad'] += 1; 
+            }
+             
         } 
         else {
             $_SESSION['carrito'][$id] = array(
